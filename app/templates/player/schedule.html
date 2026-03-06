@@ -1,0 +1,83 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Mon Planning{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Séances à venir -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Séances à Venir</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if upcoming_sessions %}
+                <ul class="list-group list-group-flush">
+                    {% for session in upcoming_sessions %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge me-2" style="background-color: {{ session.type_color }}">
+                                    {{ session.session_type }}
+                                </span>
+                                <strong>{{ session.title }}</strong>
+                                <br>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar me-1"></i>{{ session.date.strftime('%A %d/%m/%Y') }}
+                                    {% if session.start_time %}
+                                    <i class="bi bi-clock ms-2 me-1"></i>{{ session.start_time.strftime('%H:%M') }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <span class="badge bg-secondary">{{ session.duration }} min</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-calendar-x fs-1"></i>
+                    <p class="mt-2">Aucune séance planifiée</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Séances passées -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Séances Passées (30 jours)</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if past_sessions %}
+                <ul class="list-group list-group-flush">
+                    {% for session in past_sessions %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge me-2" style="background-color: {{ session.type_color }}">
+                                    {{ session.session_type }}
+                                </span>
+                                <strong>{{ session.title }}</strong>
+                                <br>
+                                <small class="text-muted">{{ session.date.strftime('%d/%m/%Y') }}</small>
+                            </div>
+                            {% if session.is_completed %}
+                            <span class="badge bg-success">Terminée</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <p>Aucune séance sur les 30 derniers jours</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Calendrier des Séances{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-group">
+        <a href="{{ url_for('sessions.list_sessions') }}" class="btn btn-outline-primary">
+            <i class="bi bi-list me-1"></i>Liste
+        </a>
+        <a href="{{ url_for('sessions.calendar') }}" class="btn btn-outline-primary active">
+            <i class="bi bi-calendar3 me-1"></i>Calendrier
+        </a>
+    </div>
+    <div class="d-flex gap-2">
+        <select class="form-select" id="teamFilter" style="width: auto;">
+            <option value="">Toutes les équipes</option>
+            {% for team in teams %}
+            <option value="{{ team.id }}">{{ team.name }}</option>
+            {% endfor %}
+        </select>
+        <a href="{{ url_for('sessions.add_session') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Nouvelle séance
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<!-- Modal détails -->
+<div class="modal fade" id="sessionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Détails de la séance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+            </div>
+            <div class="modal-footer">
+                <a href="#" id="modalViewBtn" class="btn btn-primary">Voir détails</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/fr.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var modal = new bootstrap.Modal(document.getElementById('sessionModal'));
+    
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'fr',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        events: function(info, successCallback, failureCallback) {
+            var teamId = document.getElementById('teamFilter').value;
+            var url = '{{ url_for("sessions.api_events") }}?start=' + info.startStr + '&end=' + info.endStr;
+            if (teamId) url += '&team_id=' + teamId;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => successCallback(data))
+                .catch(error => failureCallback(error));
+        },
+        eventClick: function(info) {
+            var event = info.event;
+            var props = event.extendedProps;
+            
+            document.getElementById('modalTitle').textContent = event.title;
+            document.getElementById('modalBody').innerHTML = `
+                <p><strong>Type:</strong> ${props.type}</p>
+                <p><strong>Durée:</strong> ${props.duration} minutes</p>
+                <p><strong>Équipe:</strong> ${props.team}</p>
+                <p><strong>Statut:</strong> ${props.completed ? 'Terminée' : 'Planifiée'}</p>
+            `;
+            document.getElementById('modalViewBtn').href = '{{ url_for("sessions.view_session", id=0) }}'.replace('0', event.id);
+            
+            modal.show();
+        }
+    });
+    
+    calendar.render();
+    
+    // Filtre par équipe
+    document.getElementById('teamFilter').addEventListener('change', function() {
+        calendar.refetchEvents();
+    });
+});
+</script>
+{% endblock %}

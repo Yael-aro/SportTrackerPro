@@ -1,0 +1,194 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}{{ player.full_name }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Profil -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" 
+                     style="width: 100px; height: 100px;">
+                    <span class="fs-1 text-primary">{{ player.first_name[0] }}{{ player.last_name[0] }}</span>
+                </div>
+                <h4>{{ player.full_name }}</h4>
+                {% if player.jersey_number %}
+                <span class="badge bg-dark fs-5 mb-2">#{{ player.jersey_number }}</span>
+                {% endif %}
+                <p class="text-muted">{{ player.position }} | {{ player.team.name if player.team else 'Sans équipe' }}</p>
+                
+                <span class="badge bg-{% if player.status == 'Disponible' %}success{% elif player.status == 'Blessé' %}danger{% else %}warning{% endif %} fs-6">
+                    {{ player.status }}
+                </span>
+                
+                <hr>
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="fw-bold">{{ player.age }}</div>
+                        <small class="text-muted">Âge</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-bold">{{ player.height or '-' }} cm</div>
+                        <small class="text-muted">Taille</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-bold">{{ player.weight or '-' }} kg</div>
+                        <small class="text-muted">Poids</small>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('players.edit_player', id=player.id) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>Modifier
+                    </a>
+                    <a href="{{ url_for('medical.player_medical', id=player.id) }}" class="btn btn-outline-danger">
+                        <i class="bi bi-heart-pulse me-1"></i>Fiche médicale
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- État de forme -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-activity me-2"></i>État de Forme</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <span class="form-status bg-{{ metrics.form_status.color }} bg-opacity-10 text-{{ metrics.form_status.color }}">
+                        <i class="bi bi-{{ metrics.form_status.icon }}"></i>
+                        {{ metrics.form_status.status }}
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Charge hebdomadaire</span>
+                        <strong>{{ "%.0f"|format(metrics.weekly_load) }} UA</strong>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" style="width: {{ [metrics.weekly_load / 6, 100]|min }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-6 border-end">
+                        <div class="fw-bold {% if metrics.acwr > 1.5 %}text-danger{% elif metrics.acwr > 1.3 %}text-warning{% else %}text-success{% endif %}">
+                            {{ metrics.acwr }}
+                        </div>
+                        <small class="text-muted">ACWR</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="fw-bold {% if metrics.tsb < -20 %}text-danger{% elif metrics.tsb < -10 %}text-warning{% else %}text-success{% endif %}">
+                            {{ metrics.tsb }}
+                        </div>
+                        <small class="text-muted">TSB</small>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row text-center">
+                    <div class="col-6">
+                        <small class="text-muted">Fitness (CTL)</small>
+                        <div class="fw-bold">{{ metrics.fitness }}</div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Fatigue (ATL)</small>
+                        <div class="fw-bold">{{ metrics.fatigue }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Données -->
+    <div class="col-lg-8">
+        <!-- Dernières performances -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Dernières Performances</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_results %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Séance</th>
+                                <th>RPE</th>
+                                <th>Charge</th>
+                                <th>Note Tech.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in recent_results %}
+                            <tr>
+                                <td>{{ result.session.date.strftime('%d/%m/%Y') if result.session else '-' }}</td>
+                                <td>{{ result.session.title if result.session else '-' }}</td>
+                                <td>{{ result.rpe or '-' }}/10</td>
+                                <td>
+                                    <span class="badge bg-{{ result.load_level.color }}">
+                                        {{ "%.0f"|format(result.training_load or 0) }} UA
+                                    </span>
+                                </td>
+                                <td>{{ result.technical_rating or '-' }}/10</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <p>Aucune performance enregistrée</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Données GPS -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Dernières Données GPS</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_gps %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Distance</th>
+                                <th>HSR</th>
+                                <th>Player Load</th>
+                                <th>Vmax</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gps in recent_gps %}
+                            <tr>
+                                <td>{{ gps.recorded_at.strftime('%d/%m/%Y') if gps.recorded_at else '-' }}</td>
+                                <td>{{ "%.0f"|format(gps.total_distance or 0) }} m</td>
+                                <td>{{ "%.0f"|format(gps.hsr_distance or 0) }} m</td>
+                                <td>{{ "%.1f"|format(gps.player_load or 0) }}</td>
+                                <td>{{ "%.1f"|format(gps.max_speed or 0) }} km/h</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <p>Aucune donnée GPS</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

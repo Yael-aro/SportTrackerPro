@@ -1,0 +1,84 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Dashboard Administration{% endblock %}
+
+{% block content %}
+<!-- Stats Admin -->
+<div class="row g-4 mb-4">
+    <div class="col-md-2">
+        <div class="stat-card">
+            <div class="stat-label">Utilisateurs</div>
+            <div class="stat-value text-primary">{{ stats.total_users }}</div>
+            <small class="text-muted">{{ stats.active_users }} actifs</small>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card">
+            <div class="stat-label">Joueurs</div>
+            <div class="stat-value text-success">{{ stats.total_players }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card">
+            <div class="stat-label">Équipes</div>
+            <div class="stat-value text-info">{{ stats.total_teams }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card">
+            <div class="stat-label">Séances</div>
+            <div class="stat-value text-warning">{{ stats.total_sessions }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card">
+            <div class="stat-label">Données GPS</div>
+            <div class="stat-value text-danger">{{ stats.gps_records }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-people me-2"></i>Utilisateurs par Rôle</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for role, count in users_by_role %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ role }}</span>
+                        <span class="badge bg-primary">{{ count }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-gear me-2"></i>Actions Rapides</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('players.add_player') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-person-plus me-2"></i>Ajouter un joueur
+                    </a>
+                    <a href="{{ url_for('teams.add_team') }}" class="btn btn-outline-success">
+                        <i class="bi bi-people me-2"></i>Créer une équipe
+                    </a>
+                    <a href="{{ url_for('sessions.add_session') }}" class="btn btn-outline-info">
+                        <i class="bi bi-calendar-plus me-2"></i>Planifier une séance
+                    </a>
+                    <a href="{{ url_for('gps.upload') }}" class="btn btn-outline-warning">
+                        <i class="bi bi-cloud-upload me-2"></i>Importer des données GPS
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

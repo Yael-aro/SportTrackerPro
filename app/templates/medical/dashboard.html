@@ -1,0 +1,169 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Dashboard Médical{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stat-label">Joueurs Blessés</div>
+                    <div class="stat-value text-danger">{{ injured_players|length }}</div>
+                </div>
+                <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                    <i class="bi bi-bandaid-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stat-label">En Récupération</div>
+                    <div class="stat-value text-warning">{{ recovering_players|length }}</div>
+                </div>
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-arrow-repeat"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stat-label">Blessures Actives</div>
+                    <div class="stat-value text-info">{{ active_injuries|length }}</div>
+                </div>
+                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-clipboard2-pulse"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stat-label">À Risque</div>
+                    <div class="stat-value text-primary">{{ at_risk|length }}</div>
+                </div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Joueurs blessés -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h6 class="mb-0"><i class="bi bi-bandaid me-2"></i>Joueurs Blessés</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if injured_players %}
+                <ul class="list-group list-group-flush">
+                    {% for player in injured_players %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ player.full_name }}</strong>
+                            <br><small class="text-muted">{{ player.team.name if player.team else 'Sans équipe' }}</small>
+                        </div>
+                        <a href="{{ url_for('medical.player_medical', id=player.id) }}" class="btn btn-sm btn-outline-danger">
+                            Fiche
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-4 text-success">
+                    <i class="bi bi-check-circle fs-1"></i>
+                    <p>Aucun joueur blessé</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Joueurs à risque -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Joueurs à Risque</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if at_risk %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Joueur</th>
+                                <th>ACWR</th>
+                                <th>Wellness</th>
+                                <th>État</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in at_risk %}
+                            <tr>
+                                <td>{{ item.player.full_name }}</td>
+                                <td>
+                                    <span class="badge {% if item.acwr > 1.5 %}bg-danger{% elif item.acwr > 1.3 %}bg-warning{% else %}bg-success{% endif %}">
+                                        {{ item.acwr }}
+                                    </span>
+                                </td>
+                                <td>{{ item.wellness }}/25</td>
+                                <td>
+                                    <span class="badge bg-{{ item.form.color }}">{{ item.form.status }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-success">
+                    <i class="bi bi-check-circle fs-1"></i>
+                    <p>Aucun joueur à risque</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Actions Rapides</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <a href="{{ url_for('medical.add_injury') }}" class="btn btn-danger w-100">
+                            <i class="bi bi-bandaid me-2"></i>Déclarer une blessure
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('medical.injuries') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-list-ul me-2"></i>Voir toutes les blessures
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('medical.wellness_overview') }}" class="btn btn-outline-success w-100">
+                            <i class="bi bi-heart-pulse me-2"></i>Suivi Wellness
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}À Propos{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-dribbble text-primary fs-1 mb-3"></i>
+                <h2>SportTracker Pro</h2>
+                <p class="lead text-muted">Plateforme Intelligente de Gestion d'Entraînement avec Intégration GPS</p>
+                
+                <hr class="my-4">
+                
+                <div class="row text-start">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-check-circle text-success me-2"></i>Fonctionnalités</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-dot"></i> Gestion des joueurs et équipes</li>
+                            <li><i class="bi bi-dot"></i> Planification des séances</li>
+                            <li><i class="bi bi-dot"></i> Import de données GPS</li>
+                            <li><i class="bi bi-dot"></i> Analyse ACWR et TSB</li>
+                            <li><i class="bi bi-dot"></i> Suivi du bien-être</li>
+                            <li><i class="bi bi-dot"></i> Recommandations IA</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-code-slash text-primary me-2"></i>Technologies</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-dot"></i> Python / Flask</li>
+                            <li><i class="bi bi-dot"></i> SQLAlchemy ORM</li>
+                            <li><i class="bi bi-dot"></i> Bootstrap 5</li>
+                            <li><i class="bi bi-dot"></i> Chart.js</li>
+                            <li><i class="bi bi-dot"></i> Scikit-learn (ML)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <p class="text-muted">
+                    <strong>Projet de Fin d'Études</strong><br>
+                    Zakaria Mihrab<br>
+                    Institut des Sciences du Sport - Université Hassan 1er<br>
+                    Année universitaire 2024-2025
+                </p>
+                
+                <p class="text-muted small">Version 2.0</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

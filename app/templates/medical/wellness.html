@@ -1,0 +1,93 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Suivi Bien-être{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Questionnaires remplis</div>
+            <div class="stat-value text-success">{{ today_records|length }}</div>
+            <small class="text-muted">aujourd'hui</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Non remplis</div>
+            <div class="stat-value text-warning">{{ missing|length }}</div>
+            <small class="text-muted">joueurs disponibles</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-label">Alertes</div>
+            <div class="stat-value text-danger">{{ alerts|length }}</div>
+            <small class="text-muted">score &lt; 15</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Alertes wellness -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h6 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Alertes Bien-être</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if alerts %}
+                <ul class="list-group list-group-flush">
+                    {% for record in alerts %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ record.player.full_name if record.player else 'N/A' }}</strong>
+                            <br><small class="text-muted">Score: {{ record.total_score }}/25</small>
+                        </div>
+                        <span class="badge bg-{{ record.wellness_status.color }}">
+                            {{ record.wellness_status.status }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-4 text-success">
+                    <i class="bi bi-check-circle fs-1"></i>
+                    <p>Aucune alerte</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Joueurs sans questionnaire -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-clock me-2"></i>En attente</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if missing %}
+                <ul class="list-group list-group-flush">
+                    {% for player in missing[:10] %}
+                    <li class="list-group-item">
+                        {{ player.full_name }}
+                        <small class="text-muted">({{ player.team.name if player.team else 'Sans équipe' }})</small>
+                    </li>
+                    {% endfor %}
+                    {% if missing|length > 10 %}
+                    <li class="list-group-item text-muted">
+                        ... et {{ missing|length - 10 }} autres
+                    </li>
+                    {% endif %}
+                </ul>
+                {% else %}
+                <div class="text-center py-4 text-success">
+                    <i class="bi bi-check-circle fs-1"></i>
+                    <p>Tous les joueurs ont rempli</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

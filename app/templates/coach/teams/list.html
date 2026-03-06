@@ -1,0 +1,86 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Gestion des Équipes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0">{{ teams|length }} équipe{% if teams|length > 1 %}s{% endif %}</h5>
+    <a href="{{ url_for('teams.add_team') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Nouvelle équipe
+    </a>
+</div>
+
+<div class="row g-4">
+    {% for team in teams %}
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="mb-1">{{ team.name }}</h5>
+                        <span class="badge bg-secondary">{{ team.category or 'Autre' }}</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-muted" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('teams.view_team', id=team.id) }}">
+                                <i class="bi bi-eye me-2"></i>Voir
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('teams.edit_team', id=team.id) }}">
+                                <i class="bi bi-pencil me-2"></i>Modifier
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{{ url_for('teams.delete_team', id=team.id) }}" method="POST" 
+                                      onsubmit="return confirm('Supprimer cette équipe ?');">
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-trash me-2"></i>Supprimer
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                {% if team.description %}
+                <p class="text-muted small mb-3">{{ team.description[:100] }}{% if team.description|length > 100 %}...{% endif %}</p>
+                {% endif %}
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="fs-4 fw-bold text-primary">{{ team.player_count }}</div>
+                        <small class="text-muted">Joueurs</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="fs-4 fw-bold text-success">{{ team.available_players }}</div>
+                        <small class="text-muted">Disponibles</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="fs-4 fw-bold text-danger">{{ team.injured_players }}</div>
+                        <small class="text-muted">Blessés</small>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <a href="{{ url_for('teams.view_team', id=team.id) }}" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-arrow-right me-1"></i>Voir l'équipe
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="bi bi-people text-muted fs-1"></i>
+            <p class="mt-2 text-muted">Aucune équipe créée</p>
+            <a href="{{ url_for('teams.add_team') }}" class="btn btn-primary">
+                <i class="bi bi-plus me-1"></i>Créer la première équipe
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

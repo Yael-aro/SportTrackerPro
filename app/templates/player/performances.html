@@ -1,0 +1,124 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Mes Performances{% endblock %}
+
+{% block content %}
+<!-- Moyennes -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Charge Moyenne</div>
+            <div class="stat-value text-primary">{{ averages.load }}</div>
+            <small class="text-muted">UA / séance</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">RPE Moyen</div>
+            <div class="stat-value text-success">{{ averages.rpe }}</div>
+            <small class="text-muted">/ 10</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">Distance Moyenne</div>
+            <div class="stat-value text-info">{{ averages.distance }}</div>
+            <small class="text-muted">mètres</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-label">HSR Moyenne</div>
+            <div class="stat-value text-warning">{{ averages.hsr }}</div>
+            <small class="text-muted">mètres haute intensité</small>
+        </div>
+    </div>
+</div>
+
+<!-- Graphique -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Évolution de la Charge</h6>
+    </div>
+    <div class="card-body">
+        <canvas id="loadChart" height="100"></canvas>
+    </div>
+</div>
+
+<!-- Historique -->
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>Historique des Performances</h6>
+    </div>
+    <div class="card-body p-0">
+        {% if results %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Séance</th>
+                        <th>RPE</th>
+                        <th>Charge</th>
+                        <th>Note Tech.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ result.session.date.strftime('%d/%m/%Y') if result.session else '-' }}</td>
+                        <td>{{ result.session.title if result.session else '-' }}</td>
+                        <td>{{ result.rpe or '-' }}/10</td>
+                        <td>
+                            <span class="badge bg-{{ result.load_level.color }}">
+                                {{ "%.0f"|format(result.training_load or 0) }} UA
+                            </span>
+                        </td>
+                        <td>{{ result.technical_rating or '-' }}/10</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-graph-down fs-1"></i>
+            <p class="mt-2">Aucune performance enregistrée</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ctx = document.getElementById('loadChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ chart_data.dates | tojson }},
+        datasets: [{
+            label: 'Charge (UA)',
+            data: {{ chart_data.loads | tojson }},
+            borderColor: '#3498db',
+            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

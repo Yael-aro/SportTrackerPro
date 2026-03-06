@@ -1,0 +1,57 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Import Données GPS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-cloud-upload me-2"></i>Import de Fichier GPS</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Fournisseur GPS *</label>
+                        {{ form.provider(class="form-select") }}
+                        <small class="text-muted">Sélectionnez la marque de vos gilets GPS</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Séance associée *</label>
+                        {{ form.session_id(class="form-select") }}
+                        <small class="text-muted">Les données seront liées à cette séance</small>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Fichier de données *</label>
+                        <div class="border rounded p-4 text-center bg-light">
+                            {{ form.file(class="form-control") }}
+                            <small class="text-muted d-block mt-2">
+                                Formats acceptés: CSV, Excel, JSON, XML (max 50 Mo)
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Important:</strong> Le fichier doit contenir une colonne avec le nom des joueurs
+                        (format "Prénom Nom" ou "Nom Prénom").
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('gps.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload me-1"></i>Importer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

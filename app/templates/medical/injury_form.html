@@ -1,0 +1,85 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-bandaid me-2"></i>{{ title }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Joueur *</label>
+                            {{ form.player_id(class="form-select") }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date de la blessure *</label>
+                            {{ form.date_injury(class="form-control") }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Type de blessure *</label>
+                            {{ form.injury_type(class="form-select") }}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Partie du corps *</label>
+                            {{ form.body_part(class="form-select") }}
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Gravité *</label>
+                            {{ form.severity(class="form-select") }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Contexte</label>
+                            {{ form.context(class="form-select") }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Retour prévu</label>
+                            {{ form.expected_return(class="form-control") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Mécanisme de blessure</label>
+                        {{ form.mechanism(class="form-control", placeholder="Comment la blessure s'est produite") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Traitement</label>
+                        {{ form.treatment(class="form-control", rows=3, placeholder="Traitement prescrit") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        {{ form.notes(class="form-control", rows=3) }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('medical.injuries') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Retour
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-check-lg me-1"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

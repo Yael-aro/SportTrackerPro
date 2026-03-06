@@ -1,0 +1,163 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}{{ session.title }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Infos séance -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <span class="badge float-end" style="background-color: {{ session.type_color }}">
+                    {{ session.session_type }}
+                </span>
+                <h5 class="mb-0">{{ session.title }}</h5>
+            </div>
+            <div class="card-body">
+                <p>
+                    <i class="bi bi-calendar me-2"></i>{{ session.date.strftime('%d/%m/%Y') }}
+                    {% if session.start_time %}
+                    <i class="bi bi-clock ms-3 me-2"></i>{{ session.start_time.strftime('%H:%M') }}
+                    {% endif %}
+                </p>
+                <p><i class="bi bi-stopwatch me-2"></i>{{ session.duration }} minutes</p>
+                <p><i class="bi bi-people me-2"></i>{{ session.team.name if session.team else 'Tous les joueurs' }}</p>
+                
+                {% if session.description %}
+                <hr>
+                <p class="text-muted small">{{ session.description }}</p>
+                {% endif %}
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Statut:</span>
+                    {% if session.is_completed %}
+                    <span class="badge bg-success">Terminée</span>
+                    {% else %}
+                    <span class="badge bg-warning">Planifiée</span>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span>Joueurs:</span>
+                    <span class="badge bg-secondary">{{ session.player_count }}</span>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span>Complétion:</span>
+                    <span>{{ session.completion_rate }}%</span>
+                </div>
+                
+                <div class="progress mt-2" style="height: 8px;">
+                    <div class="progress-bar bg-success" style="width: {{ session.completion_rate }}%"></div>
+                </div>
+                
+                <hr>
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('sessions.edit_session', id=session.id) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>Modifier
+                    </a>
+                    {% if not session.is_completed %}
+                    <a href="{{ url_for('sessions.enter_results', id=session.id) }}" class="btn btn-success">
+                        <i class="bi bi-clipboard-check me-1"></i>Saisir résultats
+                    </a>
+                    <form action="{{ url_for('sessions.complete_session', id=session.id) }}" method="POST">
+                        <button type="submit" class="btn btn-warning w-100">
+                            <i class="bi bi-check-lg me-1"></i>Marquer terminée
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Résultats -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Résultats par Joueur</h6>
+                {% if not session.is_completed %}
+                <a href="{{ url_for('sessions.enter_results', id=session.id) }}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus me-1"></i>Saisir
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                {% if session.players.all() %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Joueur</th>
+                                <th>RPE</th>
+                                <th>Charge</th>
+                                <th>Note Tech.</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for player in session.players %}
+                            {% set result = results.get(player.id) %}
+                            <tr>
+                                <td>{{ player.full_name }}</td>
+                                <td>{{ result.rpe if result and result.rpe else '-' }}/10</td>
+                                <td>
+                                    {% if result and result.training_load %}
+                                    <span class="badge bg-{{ result.load_level.color }}">
+                                        {{ "%.0f"|format(result.training_load) }} UA
+                                    </span>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>{{ result.technical_rating if result and result.technical_rating else '-' }}/10</td>
+                                <td>
+                                    {% if result %}
+                                    <span class="badge bg-success">Saisi</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">En attente</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <p>Aucun joueur assigné à cette séance</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Stats globales -->
+        {% if session.is_completed %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Statistiques de la Séance</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="fs-4 fw-bold text-primary">{{ "%.0f"|format(session.get_average_load()) }}</div>
+                        <small class="text-muted">Charge moyenne (UA)</small>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="fs-4 fw-bold text-success">{{ session.results.count() }}</div>
+                        <small class="text-muted">Résultats saisis</small>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="fs-4 fw-bold text-info">{{ session.completion_rate }}%</div>
+                        <small class="text-muted">Taux de complétion</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-calendar-plus me-2"></i>{{ title }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Titre de la séance *</label>
+                        {{ form.title(class="form-control", placeholder="Ex: Préparation physique") }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Type de séance *</label>
+                            {{ form.session_type(class="form-select") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Équipe</label>
+                            {{ form.team_id(class="form-select") }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Date *</label>
+                            {{ form.date(class="form-control") }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Heure de début</label>
+                            {{ form.start_time(class="form-control") }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Durée (minutes) *</label>
+                            {{ form.duration(class="form-control", placeholder="90") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        {{ form.description(class="form-control", rows=3, placeholder="Description de la séance...") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Objectifs</label>
+                        {{ form.objectives(class="form-control", rows=2, placeholder="Objectifs à atteindre...") }}
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="text-muted mb-3"><i class="bi bi-target me-2"></i>Objectifs de Performance</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Charge cible (UA)</label>
+                            {{ form.target_load(class="form-control", placeholder="400") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Distance cible (km)</label>
+                            {{ form.target_distance(class="form-control", placeholder="6.5") }}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('sessions.calendar') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

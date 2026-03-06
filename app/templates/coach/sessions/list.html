@@ -1,0 +1,83 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Séances d'entraînement{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-group">
+        <a href="{{ url_for('sessions.list_sessions') }}" class="btn btn-outline-primary active">
+            <i class="bi bi-list me-1"></i>Liste
+        </a>
+        <a href="{{ url_for('sessions.calendar') }}" class="btn btn-outline-primary">
+            <i class="bi bi-calendar3 me-1"></i>Calendrier
+        </a>
+    </div>
+    <a href="{{ url_for('sessions.add_session') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Nouvelle séance
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        {% if sessions %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Titre</th>
+                        <th>Type</th>
+                        <th>Équipe</th>
+                        <th>Durée</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in sessions %}
+                    <tr>
+                        <td>
+                            {{ session.date.strftime('%d/%m/%Y') }}
+                            {% if session.start_time %}
+                            <br><small class="text-muted">{{ session.start_time.strftime('%H:%M') }}</small>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ session.title }}</strong></td>
+                        <td>
+                            <span class="badge" style="background-color: {{ session.type_color }}">
+                                {{ session.session_type }}
+                            </span>
+                        </td>
+                        <td>{{ session.team.name if session.team else 'Tous' }}</td>
+                        <td>{{ session.duration }} min</td>
+                        <td>
+                            {% if session.is_completed %}
+                            <span class="badge bg-success">Terminée</span>
+                            {% else %}
+                            <span class="badge bg-warning">Planifiée</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('sessions.view_session', id=session.id) }}" class="btn btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ url_for('sessions.edit_session', id=session.id) }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-calendar-x text-muted fs-1"></i>
+            <p class="mt-2 text-muted">Aucune séance planifiée</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

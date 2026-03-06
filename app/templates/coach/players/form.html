@@ -1,0 +1,121 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-person me-2"></i>{{ title }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Informations personnelles -->
+                    <h6 class="text-muted mb-3"><i class="bi bi-person-badge me-2"></i>Informations Personnelles</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Prénom *</label>
+                            {{ form.first_name(class="form-control", placeholder="Prénom") }}
+                            {% if form.first_name.errors %}
+                            <div class="text-danger small">{{ form.first_name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nom *</label>
+                            {{ form.last_name(class="form-control", placeholder="Nom") }}
+                            {% if form.last_name.errors %}
+                            <div class="text-danger small">{{ form.last_name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Date de naissance *</label>
+                            {{ form.date_of_birth(class="form-control") }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Email</label>
+                            {{ form.email(class="form-control", placeholder="email@example.com") }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Téléphone</label>
+                            {{ form.phone(class="form-control", placeholder="+212...") }}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Informations sportives -->
+                    <h6 class="text-muted mb-3"><i class="bi bi-dribbble me-2"></i>Informations Sportives</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Position *</label>
+                            {{ form.position(class="form-select") }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Numéro de maillot</label>
+                            {{ form.jersey_number(class="form-control", placeholder="10") }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Pied fort</label>
+                            {{ form.dominant_foot(class="form-select") }}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Équipe</label>
+                            {{ form.team_id(class="form-select") }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Statut</label>
+                            {{ form.status(class="form-select") }}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Données physiques -->
+                    <h6 class="text-muted mb-3"><i class="bi bi-heart-pulse me-2"></i>Données Physiques</h6>
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Taille (cm)</label>
+                            {{ form.height(class="form-control", placeholder="175") }}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Poids (kg)</label>
+                            {{ form.weight(class="form-control", placeholder="70") }}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">FC Max</label>
+                            {{ form.hr_max(class="form-control", placeholder="190") }}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">VMA (km/h)</label>
+                            {{ form.vma(class="form-control", placeholder="16.5") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        {{ form.notes(class="form-control", rows=3, placeholder="Notes additionnelles...") }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('players.list_players') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

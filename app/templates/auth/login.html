@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - SportTracker Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #2C3E50 0%, #3498DB 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 1rem;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .login-header i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .login-body {
+            padding: 2rem;
+        }
+        
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .role-option {
+            display: none;
+        }
+        
+        .role-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .role-label:hover {
+            border-color: #3498DB;
+        }
+        
+        .role-option:checked + .role-label {
+            border-color: #27AE60;
+            background: rgba(39, 174, 96, 0.1);
+        }
+        
+        .role-label i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+        }
+        
+        .btn-login {
+            border-radius: 10px;
+            padding: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .player-help {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+        
+        .players-dropdown {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="bi bi-dribbble"></i>
+                <h2 class="mb-1">SportTracker Pro</h2>
+                <p class="mb-0 opacity-75">Plateforme de gestion GPS</p>
+            </div>
+            
+            <div class="login-body">
+                <form method="POST" id="loginForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Sélection du rôle -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Je suis</label>
+                        <div class="role-selector">
+                            <div>
+                                <input type="radio" class="role-option" name="role" id="role_staff" value="coach" checked>
+                                <label class="role-label" for="role_staff">
+                                    <i class="bi bi-clipboard-data text-primary"></i>
+                                    <span>Staff</span>
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" class="role-option" name="role" id="role_player" value="player">
+                                <label class="role-label" for="role_player">
+                                    <i class="bi bi-person-fill text-success"></i>
+                                    <span>Joueur</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        {{ form.email(class="form-control", placeholder="votre@email.com") }}
+                        {% if form.email.errors %}
+                        <div class="text-danger small mt-1">{{ form.email.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Mot de passe (staff uniquement) -->
+                    <div class="mb-3" id="passwordGroup">
+                        <label for="password" class="form-label">Mot de passe</label>
+                        {{ form.password(class="form-control", placeholder="••••••••") }}
+                    </div>
+                    
+                    <!-- Aide joueurs -->
+                    <div class="player-help d-none mb-3" id="playerHelp">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Joueurs :</strong> Utilisez <code>prenom.nom@email.com</code>
+                        <br><small class="text-muted">Exemple: youssef.elamrani@sporttracker.com</small>
+                    </div>
+                    
+                    <!-- Remember me -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            {{ form.remember(class="form-check-input") }}
+                            <label class="form-check-label" for="remember">Se souvenir de moi</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit -->
+                    <button type="submit" class="btn btn-success btn-login w-100 mb-3">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+                    </button>
+                    
+                    <div class="text-center">
+                        <a href="{{ url_for('auth.register') }}" class="text-decoration-none">
+                            Créer un compte staff
+                        </a>
+                    </div>
+                </form>
+                
+                {% if players %}
+                <!-- Liste des joueurs (aide) -->
+                <div class="mt-4 d-none" id="playersList">
+                    <hr>
+                    <label class="form-label small text-muted">Joueurs disponibles (cliquez pour remplir)</label>
+                    <div class="players-dropdown border rounded p-2">
+                        {% for player in players[:10] %}
+                        <a href="#" class="d-block text-decoration-none py-1 player-item"
+                           data-email="{{ player.first_name|lower }}.{{ player.last_name|lower }}@sporttracker.com">
+                            {{ player.full_name }}
+                            <small class="text-muted">({{ player.team.name if player.team else 'Sans équipe' }})</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <p class="text-center text-white mt-4 opacity-75">
+            <small>SportTracker Pro v2.0 - Université Hassan 1er</small>
+        </p>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const roleStaff = document.getElementById('role_staff');
+        const rolePlayer = document.getElementById('role_player');
+        const passwordGroup = document.getElementById('passwordGroup');
+        const playerHelp = document.getElementById('playerHelp');
+        const playersList = document.getElementById('playersList');
+        const emailInput = document.querySelector('input[name="email"]');
+        
+        function updateForm() {
+            if (rolePlayer.checked) {
+                passwordGroup.classList.add('d-none');
+                playerHelp.classList.remove('d-none');
+                if (playersList) playersList.classList.remove('d-none');
+            } else {
+                passwordGroup.classList.remove('d-none');
+                playerHelp.classList.add('d-none');
+                if (playersList) playersList.classList.add('d-none');
+            }
+        }
+        
+        roleStaff.addEventListener('change', updateForm);
+        rolePlayer.addEventListener('change', updateForm);
+        
+        // Remplir l'email au clic sur un joueur
+        document.querySelectorAll('.player-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                emailInput.value = this.dataset.email;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Dashboard Dirigeant{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-primary bg-opacity-10 text-primary mb-2">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-value">{{ stats.total_players }}</div>
+            <div class="stat-label">Joueurs</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-success bg-opacity-10 text-success mb-2">
+                <i class="bi bi-diagram-3-fill"></i>
+            </div>
+            <div class="stat-value">{{ stats.total_teams }}</div>
+            <div class="stat-label">Équipes</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-danger bg-opacity-10 text-danger mb-2">
+                <i class="bi bi-bandaid-fill"></i>
+            </div>
+            <div class="stat-value">{{ stats.injured_count }}</div>
+            <div class="stat-label">Blessés</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon bg-info bg-opacity-10 text-info mb-2">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="stat-value">{{ stats.sessions_month }}</div>
+            <div class="stat-label">Séances ce mois</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-briefcase me-2"></i>Vue d'Ensemble</h6>
+            </div>
+            <div class="card-body">
+                <p>Ce tableau de bord fournit une vue synthétique de l'activité du club.</p>
+                <p class="text-muted">Des rapports détaillés seront disponibles dans une prochaine version.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

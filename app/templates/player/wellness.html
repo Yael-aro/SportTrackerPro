@@ -1,0 +1,126 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Mon Bien-être{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Formulaire -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-heart-pulse me-2"></i>
+                    Questionnaire du Jour
+                    {% if existing %}
+                    <span class="badge bg-success ms-2">Déjà rempli</span>
+                    {% endif %}
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Niveau de fatigue</label>
+                        {{ form.fatigue(class="form-select") }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Qualité du sommeil</label>
+                            {{ form.sleep_quality(class="form-select") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Heures de sommeil</label>
+                            {{ form.sleep_hours(class="form-control", placeholder="7.5") }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Douleurs musculaires</label>
+                        {{ form.muscle_soreness(class="form-select") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Niveau de stress</label>
+                        {{ form.stress(class="form-select") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Humeur générale</label>
+                        {{ form.mood(class="form-select") }}
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">FC au repos (optionnel)</label>
+                            {{ form.hr_rest(class="form-control", placeholder="60") }}
+                            <small class="text-muted">bpm, mesuré au réveil</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Poids (optionnel)</label>
+                            {{ form.weight(class="form-control", placeholder="70") }}
+                            <small class="text-muted">kg</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        {{ form.notes(class="form-control", rows=2, placeholder="Commentaires...") }}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-check-lg me-1"></i>
+                        {% if existing %}Mettre à jour{% else %}Enregistrer{% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Historique -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Historique (14 jours)</h6>
+            </div>
+            <div class="card-body p-0">
+                {% if history %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Score</th>
+                                <th>Sommeil</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in history %}
+                            <tr>
+                                <td>{{ record.date.strftime('%d/%m') }}</td>
+                                <td><strong>{{ record.total_score }}/25</strong></td>
+                                <td>{{ record.sleep_hours or '-' }}h</td>
+                                <td>
+                                    <span class="badge bg-{{ record.wellness_status.color }}">
+                                        {{ record.wellness_status.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <p>Aucun historique disponible</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

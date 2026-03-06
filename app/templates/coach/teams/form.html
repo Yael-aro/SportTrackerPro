@@ -1,0 +1,64 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-people me-2"></i>{{ title }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Nom de l'équipe *</label>
+                        {{ form.name(class="form-control", placeholder="Ex: Seniors A") }}
+                        {% if form.name.errors %}
+                        <div class="text-danger small">{{ form.name.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Catégorie</label>
+                        {{ form.category(class="form-select") }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        {{ form.description(class="form-control", rows=3, placeholder="Description de l'équipe...") }}
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="text-muted mb-3"><i class="bi bi-graph-up me-2"></i>Objectifs de Charge</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Charge hebdomadaire cible (UA)</label>
+                            {{ form.target_weekly_load(class="form-control", placeholder="400") }}
+                            <small class="text-muted">Objectif de charge par semaine</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Charge hebdomadaire max (UA)</label>
+                            {{ form.max_weekly_load(class="form-control", placeholder="600") }}
+                            <small class="text-muted">Seuil d'alerte</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('teams.list_teams') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

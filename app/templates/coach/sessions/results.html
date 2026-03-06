@@ -1,0 +1,105 @@
+{% extends "shared/base.html" %}
+
+{% block page_title %}Saisie des Résultats - {{ session.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-clipboard-check me-2"></i>
+            Saisie des Résultats - {{ session.title }}
+        </h5>
+        <small class="text-muted">{{ session.date.strftime('%d/%m/%Y') }} | {{ session.duration }} min</small>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Joueur</th>
+                            <th style="width: 150px;">RPE (1-10)</th>
+                            <th style="width: 150px;">Note Technique (1-10)</th>
+                            <th>Charge Calculée</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in session.players %}
+                        {% set result = existing.get(player.id) %}
+                        <tr>
+                            <td>
+                                <strong>{{ player.full_name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ player.position }}</small>
+                            </td>
+                            <td>
+                                <input type="number" name="rpe_{{ player.id }}" 
+                                       class="form-control rpe-input" 
+                                       min="1" max="10" 
+                                       value="{{ result.rpe if result else '' }}"
+                                       data-player="{{ player.id }}"
+                                       data-duration="{{ session.duration }}">
+                            </td>
+                            <td>
+                                <input type="number" name="technical_{{ player.id }}" 
+                                       class="form-control" 
+                                       min="1" max="10" step="0.5"
+                                       value="{{ result.technical_rating if result else '' }}">
+                            </td>
+                            <td>
+                                <span class="calculated-load" id="load_{{ player.id }}">
+                                    {% if result and result.training_load %}
+                                    {{ "%.0f"|format(result.training_load) }} UA
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ url_for('sessions.view_session', id=session.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Retour
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-lg me-1"></i>Enregistrer les résultats
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Calcul automatique de la charge
+document.querySelectorAll('.rpe-input').forEach(input => {
+    input.addEventListener('input', function() {
+        const playerId = this.dataset.player;
+        const duration = parseInt(this.dataset.duration);
+        const rpe = parseInt(this.value) || 0;
+        const load = rpe * duration;
+        
+        const loadSpan = document.getElementById('load_' + playerId);
+        if (rpe > 0) {
+            loadSpan.textContent = load + ' UA';
+            loadSpan.className = 'badge ' + getLoadColor(load);
+        } else {
+            loadSpan.textContent = '-';
+            loadSpan.className = 'calculated-load';
+        }
+    });
+});
+
+function getLoadColor(load) {
+    if (load < 200) return 'bg-success';
+    if (load < 400) return 'bg-info';
+    if (load < 600) return 'bg-warning';
+    return 'bg-danger';
+}
+</script>
+{% endblock %}
