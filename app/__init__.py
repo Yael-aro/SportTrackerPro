@@ -4,7 +4,7 @@ SportTracker Pro - Application Factory
 """
 
 import os
-from flask import Flask, session
+from flask import Flask, session, send_from_directory
 from flask_login import LoginManager
 from config import config
 from app.models import db, User
@@ -36,6 +36,11 @@ def create_app(config_name='default'):
     if uploads_path and not os.path.exists(uploads_path):
         os.makedirs(uploads_path)
     
+    # Créer le dossier uploads/players pour les photos de profil
+    players_uploads_path = os.path.join(os.path.dirname(app.root_path), 'uploads', 'players')
+    if not os.path.exists(players_uploads_path):
+        os.makedirs(players_uploads_path)
+    
     # User loader pour Flask-Login
     @login_manager.user_loader
     def load_user(user_id):
@@ -63,6 +68,14 @@ def create_app(config_name='default'):
     app.register_blueprint(player_portal_bp, url_prefix='/player')
     app.register_blueprint(medical_bp, url_prefix='/medical')
     app.register_blueprint(api_bp, url_prefix='/api')
+    
+    # Route pour servir les fichiers uploadés
+    base_uploads_path = os.path.join(os.path.dirname(app.root_path), 'uploads')
+    
+    @app.route('/uploads/<path:filepath>')
+    def serve_uploads(filepath):
+        """Servir les fichiers uploadés (photos, GPS, etc.)"""
+        return send_from_directory(base_uploads_path, filepath)
     
     # Context processor pour les templates
     @app.context_processor

@@ -4,7 +4,7 @@ SportTracker Pro - Formulaires WTForms
 """
 
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileSize
 from wtforms import (
     StringField, TextAreaField, SelectField, DateField, 
     TimeField, IntegerField, FloatField, BooleanField, 
@@ -160,6 +160,11 @@ class PlayerForm(FlaskForm):
     vma = FloatField('VMA (km/h)', validators=[
         Optional(),
         NumberRange(min=8, max=25)
+    ])
+    
+    photo = FileField('Photo de profil', validators=[
+        FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images uniquement (jpg, jpeg, png, gif)'),
+        FileSize(max_size=5*1024*1024, message='La photo ne doit pas dépasser 5MB')
     ])
     
     notes = TextAreaField('Notes', validators=[Optional()])

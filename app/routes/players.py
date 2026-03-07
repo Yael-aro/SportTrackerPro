@@ -5,10 +5,51 @@ SportTracker Pro - Routes Joueurs
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from app.models import db, Player, Team
+from werkzeug.utils import secure_filename
+from app.models import db, Player, Team, TrainingResult, GPSData
 from app.forms import PlayerForm
+import os
+from datetime import datetime
 
 players_bp = Blueprint('players', __name__)
+
+# Dossier uploads
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'uploads', 'players')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+def save_player_photo(file):
+    """Sauvegarde la photo du joueur et retourne le chemin"""
+    try:
+        if not file or file.filename == '':
+            return None
+        
+        # Vérifier que c'est une image
+        if not ('image' in file.content_type):
+            return None
+        
+        # Générer un nom unique pour la photo
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        clean_filename = secure_filename(file.filename)
+        
+        if not clean_filename:
+            return None
+            
+        full_filename = f"{timestamp}_{clean_filename}"
+        filepath = os.path.join(UPLOAD_FOLDER, full_filename)
+        
+        # Créer le dossier s'il n'existe pas
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        
+        # Sauvegarder le fichier
+        file.save(filepath)
+        print(f"✅ Photo sauvegardée: {filepath}")
+        
+        # Retourner le chemin relatif pour la base de données
+        return f'players/{full_filename}'
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde de la photo: {str(e)}")
+        return None
 
 
 @players_bp.route('/')
@@ -62,11 +103,24 @@ def add_player():
             notes=form.notes.data
         )
         
+        # Gérer le upload de photo
+        if form.photo.data:
+            photo_path = save_player_photo(form.photo.data)
+            if photo_path:
+                player.photo_url = photo_path
+                flash(f'Photo de profil ajoutée ✅', 'success')
+        
         db.session.add(player)
         db.session.commit()
         
         flash(f'Joueur {player.full_name} ajouté avec succès !', 'success')
         return redirect(url_for('players.list_players'))
+    else:
+        # Afficher les erreurs de validation
+        if form.errors:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f'Erreur ({field}): {error}', 'danger')
     
     return render_template('coach/players/form.html', form=form, title='Ajouter un joueur')
 
@@ -117,9 +171,22 @@ def edit_player(id):
         if form.team_id.data == 0:
             player.team_id = None
         
+        # Gérer le upload de photo
+        if form.photo.data:
+            photo_path = save_player_photo(form.photo.data)
+            if photo_path:
+                player.photo_url = photo_path
+                flash(f'Photo de profil mise à jour ✅', 'success')
+        
         db.session.commit()
         flash(f'Joueur {player.full_name} modifié avec succès !', 'success')
         return redirect(url_for('players.view_player', id=id))
+    else:
+        # Afficher les erreurs de validation
+        if form.errors:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f'Erreur ({field}): {error}', 'danger')
     
     return render_template('coach/players/form.html', 
                           form=form, 

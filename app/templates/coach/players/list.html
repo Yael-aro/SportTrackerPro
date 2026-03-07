@@ -3,15 +3,55 @@
 {% block page_title %}Gestion des Joueurs{% endblock %}
 
 {% block content %}
+<style>
+    .player-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .player-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-color: #007bff;
+    }
+    
+    .player-photo {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 3px solid #e0e0e0;
+    }
+    
+    .player-initials {
+        width: 120px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: 3px solid #e0e0e0;
+    }
+    
+    .status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="d-flex gap-2">
-        <select class="form-select" id="teamFilter" onchange="filterPlayers()">
+    <div class="d-flex gap-2" style="flex: 1; max-width: 400px;">
+        <select class="form-select form-select-sm" id="teamFilter" onchange="filterPlayers()">
             <option value="">Toutes les équipes</option>
             {% for team in teams %}
             <option value="{{ team.id }}">{{ team.name }}</option>
             {% endfor %}
         </select>
-        <select class="form-select" id="statusFilter" onchange="filterPlayers()">
+        <select class="form-select form-select-sm" id="statusFilter" onchange="filterPlayers()">
             <option value="">Tous les statuts</option>
             <option value="Disponible">Disponible</option>
             <option value="Blessé">Blessé</option>
@@ -24,71 +64,81 @@
     </a>
 </div>
 
-<div class="card">
-    <div class="card-body p-0">
-        {% if players %}
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Joueur</th>
-                        <th>Position</th>
-                        <th>Équipe</th>
-                        <th>Âge</th>
-                        <th>Statut</th>
-                        <th>Charge Hebdo</th>
-                        <th>ACWR</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for player in players %}
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-2" 
-                                     style="width: 40px; height: 40px;">
-                                    <span class="text-primary fw-bold">{{ player.first_name[0] }}{{ player.last_name[0] }}</span>
-                                </div>
-                                <div>
-                                    <strong>{{ player.full_name }}</strong>
-                                    {% if player.jersey_number %}
-                                    <span class="badge bg-secondary ms-1">#{{ player.jersey_number }}</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </td>
-                        <td>{{ player.position }}</td>
-                        <td>{{ player.team.name if player.team else '-' }}</td>
-                        <td>{{ player.age }} ans</td>
-                        <td>
-                            <span class="badge bg-{% if player.status == 'Disponible' %}success{% elif player.status == 'Blessé' %}danger{% else %}warning{% endif %}">
-                                {{ player.status }}
-                            </span>
-                        </td>
-                        <td>{{ "%.0f"|format(player.get_weekly_load()) }} UA</td>
-                        <td>
-                            {% set acwr = player.get_acwr() %}
-                            <span class="badge bg-{% if acwr > 1.5 %}danger{% elif acwr > 1.3 %}warning{% else %}success{% endif %}">
-                                {{ acwr }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{{ url_for('players.view_player', id=player.id) }}" class="btn btn-outline-primary" title="Voir">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a href="{{ url_for('players.edit_player', id=player.id) }}" class="btn btn-outline-secondary" title="Modifier">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+{% if players %}
+<div class="row g-4">
+    {% for player in players %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card player-card h-100 position-relative">
+            <div class="status-badge">
+                <span class="badge bg-{% if player.status == 'Disponible' %}success{% elif player.status == 'Blessé' %}danger{% else %}warning{% endif %}">
+                    {{ player.status }}
+                </span>
+            </div>
+            
+            <div class="card-body text-center pt-4">
+                <!-- Photo ou initiales -->
+                {% if player.photo_url %}
+                <img src="/uploads/{{ player.photo_url }}" 
+                     alt="{{ player.full_name }}" 
+                     class="rounded-circle mb-3 player-photo">
+                {% else %}
+                <div class="rounded-circle mb-3 player-initials">
+                    <span>{{ player.first_name[0] }}{{ player.last_name[0] }}</span>
+                </div>
+                {% endif %}
+                
+                <!-- Nom du joueur -->
+                <h5 class="card-title mb-1">{{ player.full_name }}</h5>
+                
+                <!-- Numéro de maillot et position -->
+                <div class="mb-3">
+                    {% if player.jersey_number %}
+                    <span class="badge bg-dark me-1">#{{ player.jersey_number }}</span>
+                    {% endif %}
+                    <span class="badge bg-info">{{ player.position }}</span>
+                </div>
+                
+                <!-- Infos additionnelles -->
+                <div class="row text-center mb-3">
+                    <div class="col-6 border-end">
+                        <div class="fw-bold text-primary">{{ player.age }}</div>
+                        <small class="text-muted">Âge</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="fw-bold text-success">{{ "%.0f"|format(player.get_weekly_load()) }} UA</div>
+                        <small class="text-muted">Charge</small>
+                    </div>
+                </div>
+                
+                <!-- Équipe et ACWR -->
+                <div class="mb-3">
+                    <small class="text-muted d-block">Équipe: <strong>{{ player.team.name if player.team else '-' }}</strong></small>
+                    {% set acwr = player.get_acwr() %}
+                    <small class="text-muted d-block">
+                        ACWR: 
+                        <span class="badge bg-{% if acwr > 1.5 %}danger{% elif acwr > 1.3 %}warning{% else %}success{% endif %}">
+                            {{ acwr }}
+                        </span>
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Boutons d'action -->
+            <div class="card-footer bg-white border-top">
+                <div class="btn-group w-100" role="group">
+                    <a href="{{ url_for('players.view_player', id=player.id) }}" class="btn btn-outline-primary btn-sm" title="Voir le profil">
+                        <i class="bi bi-eye"></i> Profil
+                    </a>
+                    <a href="{{ url_for('players.edit_player', id=player.id) }}" class="btn btn-outline-secondary btn-sm" title="Modifier">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                </div>
+            </div>
         </div>
-        {% else %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
         <div class="text-center py-5">
             <i class="bi bi-people text-muted fs-1"></i>
             <p class="mt-2 text-muted">Aucun joueur trouvé</p>

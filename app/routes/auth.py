@@ -122,8 +122,84 @@ def logout():
 @auth_bp.route('/profile')
 @login_required
 def profile():
-    """Profil de l'utilisateur"""
-    return render_template('auth/profile.html')
+    """Profil de l'utilisateur (joueur ou staff)"""
+    from app.models import Player, TrainingResult, GPSData
+    
+    player = None
+    stats = {
+        'total_sessions': 0,
+        'total_distance': 0,
+        'best_distance': 0,
+        'best_speed': 0,
+        'accuracy': 100
+    }
+    
+    # Si l'utilisateur est un joueur
+    if current_user.player_id:
+        player = Player.query.get(current_user.player_id)
+        
+        if player:
+            # Calculer les statistiques
+            total_sessions = TrainingResult.query.filter_by(player_id=player.id).count()
+            total_distance = db.session.query(db.func.sum(GPSData.total_distance)).filter_by(
+                player_id=player.id
+            ).scalar() or 0
+            
+            best_distance = db.session.query(db.func.max(GPSData.total_distance)).filter_by(
+                player_id=player.id
+            ).scalar() or 0
+            
+            best_speed = db.session.query(db.func.max(GPSData.max_speed)).filter_by(
+                player_id=player.id
+            ).scalar() or 0
+            
+            # Calculer la précision (assiduité)
+            accuracy = 100
+            if total_sessions > 0:
+                total_attendance = TrainingResult.query.filter_by(player_id=player.id, status='Completed').count()
+                accuracy = round((total_attendance / total_sessions) * 100)
+            
+            stats = {
+                'total_sessions': total_sessions,
+                'total_distance': round(total_distance / 1000, 1) if total_distance else 0,
+                'best_distance': round(best_distance, 0) if best_distance else 0,
+                'best_speed': round(best_speed, 1) if best_speed else 0,
+                'accuracy': accuracy
+            }
+    else:
+        # Pour les staff, créer un objet Player minimal avec les infos du User
+        player = current_user
+        # Ajouter les attributs manquants pour compatibilité avec le template
+        if not hasattr(player, 'date_of_birth'):
+            player.date_of_birth = None
+        if not hasattr(player, 'position'):
+            player.position = player.role_display
+        if not hasattr(player, 'jersey_number'):
+            player.jersey_number = None
+        if not hasattr(player, 'height'):
+            player.height = None
+        if not hasattr(player, 'weight'):
+            player.weight = None
+        if not hasattr(player, 'dominant_foot'):
+            player.dominant_foot = None
+        if not hasattr(player, 'status'):
+            player.status = 'Actif' if player.is_active else 'Inactif'
+        if not hasattr(player, 'team'):
+            player.team = None
+        if not hasattr(player, 'age'):
+            player.age = '-'
+        if not hasattr(player, 'bmi'):
+            player.bmi = None
+        if not hasattr(player, 'hr_max'):
+            player.hr_max = None
+        if not hasattr(player, 'vma'):
+            player.vma = None
+        if not hasattr(player, 'injuries'):
+            player.injuries = []
+        if not hasattr(player, 'wellness_records'):
+            player.wellness_records = []
+    
+    return render_template('auth/profile.html', player=player, stats=stats)
 
 
 # =============================================================================

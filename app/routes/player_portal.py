@@ -23,6 +23,45 @@ def get_current_player():
     return None
 
 
+@player_portal_bp.route('/profile')
+@login_required
+def profile():
+    """Profil du joueur"""
+    player = get_current_player()
+    if not player:
+        return redirect(url_for('auth.login'))
+    
+    # Statistiques carrière
+    total_sessions = TrainingResult.query.filter_by(player_id=player.id).count()
+    total_distance = db.session.query(db.func.sum(GPSData.total_distance)).filter_by(
+        player_id=player.id
+    ).scalar() or 0
+    
+    best_distance = db.session.query(db.func.max(GPSData.total_distance)).filter_by(
+        player_id=player.id
+    ).scalar() or 0
+    
+    best_speed = db.session.query(db.func.max(GPSData.max_speed)).filter_by(
+        player_id=player.id
+    ).scalar() or 0
+    
+    # Calculer la précision (assiduité)
+    accuracy = 100
+    if total_sessions > 0:
+        total_attendance = TrainingResult.query.filter_by(player_id=player.id, status='Completed').count()
+        accuracy = round((total_attendance / total_sessions) * 100)
+    
+    stats = {
+        'total_sessions': total_sessions,
+        'total_distance': round(total_distance / 1000, 1) if total_distance else 0,  # en km
+        'best_distance': round(best_distance, 0) if best_distance else 0,
+        'best_speed': round(best_speed, 1) if best_speed else 0,
+        'accuracy': accuracy
+    }
+    
+    return render_template('player/profile.html', player=player, stats=stats)
+
+
 @player_portal_bp.route('/dashboard')
 @login_required
 def dashboard():
@@ -171,38 +210,6 @@ def performances():
                           chart_data=chart_data)
 
 
-@player_portal_bp.route('/profile')
-@login_required
-def profile():
-    """Profil du joueur"""
-    player = get_current_player()
-    if not player:
-        return redirect(url_for('auth.login'))
-    
-    # Statistiques carrière
-    total_sessions = TrainingResult.query.filter_by(player_id=player.id).count()
-    total_distance = db.session.query(db.func.sum(GPSData.total_distance)).filter_by(
-        player_id=player.id
-    ).scalar() or 0
-    
-    best_distance = db.session.query(db.func.max(GPSData.total_distance)).filter_by(
-        player_id=player.id
-    ).scalar() or 0
-    
-    best_speed = db.session.query(db.func.max(GPSData.max_speed)).filter_by(
-        player_id=player.id
-    ).scalar() or 0
-    
-    stats = {
-        'total_sessions': total_sessions,
-        'total_distance': round(total_distance / 1000, 1),  # en km
-        'best_distance': round(best_distance, 0),
-        'best_speed': round(best_speed, 1)
-    }
-    
-    return render_template('player/profile.html', player=player, stats=stats)
-
-
 @player_portal_bp.route('/wellness', methods=['GET', 'POST'])
 @login_required
 def wellness():
@@ -283,3 +290,47 @@ def mark_recommendation_read(id):
     db.session.commit()
     
     return redirect(url_for('player_portal.recommendations'))
+
+
+@player_portal_bp.route('/profile/update', methods=['POST'])
+@login_required
+def update_profile():
+    """Mettre à jour le profil du joueur"""
+    player = get_current_player()
+    if not player:
+        flash('Profil joueur non trouvé.', 'danger')
+        return redirect(url_for('auth.login'))
+    
+    # Récupérer les données du formulaire
+    player.first_name = request.form.get('first_name', player.first_name)
+    player.last_name = request.form.get('last_name', player.last_name)
+    player.phone = request.form.get('phone') or None
+    player.email = request.form.get('email') or None
+    
+    # Mettre à jour les paramètres sportifs
+    try:
+        weight = request.form.get('weight')
+        if weight:
+            player.weight = float(weight)
+        
+        height = request.form.get('height')
+        if height:
+            player.height = float(height)
+        
+        hr_max = request.form.get('hr_max')
+        if hr_max:
+            player.hr_max = int(hr_max)
+    except (ValueError, TypeError):
+        pass
+    
+    player.dominant_foot = request.form.get('dominant_foot') or None
+    player.notes = request.form.get('notes') or None
+    
+    try:
+        db.session.commit()
+        flash('Profil mis à jour avec succès !', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erreur lors de la mise à jour : {str(e)}', 'danger')
+    
+    return redirect(url_for('player_portal.profile'))

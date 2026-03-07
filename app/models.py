@@ -88,7 +88,7 @@ class User(db.Model):
     
     def set_password(self, password):
         """Hasher le mot de passe"""
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
     
     def check_password(self, password):
         """Vérifier le mot de passe"""

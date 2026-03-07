@@ -10,7 +10,7 @@
                 <h5 class="mb-0"><i class="bi bi-person me-2"></i>{{ title }}</h5>
             </div>
             <div class="card-body">
-                <form method="POST">
+                <form method="POST" enctype="multipart/form-data">
                     {{ form.hidden_tag() }}
                     
                     <!-- Informations personnelles -->
@@ -75,6 +75,28 @@
                             <label class="form-label">Statut</label>
                             {{ form.status(class="form-select") }}
                         </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Photo de profil -->
+                    <h6 class="text-muted mb-3"><i class="bi bi-image me-2"></i>Photo de Profil</h6>
+                    {% if player and player.photo_url %}
+                    <div class="mb-3 text-center">
+                        <img src="/uploads/{{ player.photo_url }}" 
+                             alt="{{ player.full_name }}" 
+                             class="rounded-circle mb-3" 
+                             style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #ddd;">
+                        <p class="small text-muted">Photo actuelle</p>
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'Changer la photo' if player and player.photo_url else 'Charger une photo' }}</label>
+                        {{ form.photo(class="form-control", accept="image/*") }}
+                        <small class="text-muted d-block mt-1">Formats acceptés: JPG, JPEG, PNG, GIF (Max 5MB)</small>
+                        {% if form.photo.errors %}
+                        <div class="text-danger small">{{ form.photo.errors[0] }}</div>
+                        {% endif %}
                     </div>
                     
                     <hr>

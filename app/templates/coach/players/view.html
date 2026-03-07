@@ -8,10 +8,17 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-body text-center">
+                {% if player.photo_url %}
+                <img src="/uploads/{{ player.photo_url }}" 
+                     alt="{{ player.full_name }}" 
+                     class="rounded-circle mb-3" 
+                     style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #dee2e6;">
+                {% else %}
                 <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" 
                      style="width: 100px; height: 100px;">
                     <span class="fs-1 text-primary">{{ player.first_name[0] }}{{ player.last_name[0] }}</span>
                 </div>
+                {% endif %}
                 <h4>{{ player.full_name }}</h4>
                 {% if player.jersey_number %}
                 <span class="badge bg-dark fs-5 mb-2">#{{ player.jersey_number }}</span>
