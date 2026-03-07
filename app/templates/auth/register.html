@@ -6,131 +6,405 @@
     <title>Inscription - SportTracker Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --glass-bg:     rgba(255,255,255,0.11);
+            --glass-border: rgba(255,255,255,0.28);
+            --input-bg:     rgba(255,255,255,0.10);
+            --input-focus:  rgba(255,255,255,0.20);
+            --text-primary: rgba(255,255,255,0.96);
+            --text-muted:   rgba(255,255,255,0.55);
+            --accent:       #34d27b;
+            --accent-glow:  rgba(52,210,123,0.40);
+            --radius:       22px;
+            --radius-sm:    13px;
+        }
+
+        html { font-size: 16px; }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #2C3E50 0%, #3498DB 100%);
-            min-height: 100vh;
-            padding: 2rem 0;
+            font-family: -apple-system, 'Helvetica Neue', sans-serif;
+            min-height: 100svh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: clamp(1rem, 4vw, 2.5rem);
+            overflow-x: hidden;
+            background: #0a1628;
+            position: relative;
         }
-        
+
+        /* ── Mesh orbs ── */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 {
+            width: clamp(300px,55vw,700px); height: clamp(300px,55vw,700px);
+            background: radial-gradient(circle, #1a6aff 0%, transparent 70%);
+            top: -15%; left: -10%;
+            animation: drift1 18s ease-in-out infinite alternate;
+        }
+        .orb-2 {
+            width: clamp(240px,45vw,580px); height: clamp(240px,45vw,580px);
+            background: radial-gradient(circle, #0ea87e 0%, transparent 70%);
+            bottom: -10%; right: -8%;
+            animation: drift2 22s ease-in-out infinite alternate;
+        }
+        .orb-3 {
+            width: clamp(160px,28vw,360px); height: clamp(160px,28vw,360px);
+            background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+            top: 30%; right: 5%;
+            animation: drift3 15s ease-in-out infinite alternate;
+        }
+        .orb-4 {
+            width: clamp(130px,20vw,260px); height: clamp(130px,20vw,260px);
+            background: radial-gradient(circle, #ff6b6b 0%, transparent 70%);
+            bottom: 20%; left: 10%;
+            animation: drift1 19s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(4%,6%) scale(1.08); } }
+        @keyframes drift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-5%,-4%) scale(1.1); } }
+        @keyframes drift3 { from { transform: translate(0,0) scale(1); } to { transform: translate(-3%,5%) scale(0.95); } }
+
+        /* ── Container ── */
         .register-container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 1rem;
+            width: 100%;
+            max-width: min(500px, 100%);
+            position: relative;
+            z-index: 10;
         }
-        
+
+        /* ── Card ── */
         .register-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: var(--glass-bg);
+            backdrop-filter: blur(48px) saturate(180%);
+            -webkit-backdrop-filter: blur(48px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow:
+                0 0 0 0.5px rgba(255,255,255,0.07) inset,
+                0 2px 0 rgba(255,255,255,0.16) inset,
+                0 32px 80px rgba(0,0,0,0.45),
+                0 8px 24px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+            animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
         }
-        
+        .register-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius);
+            background: linear-gradient(155deg, rgba(255,255,255,0.16) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(28px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── Header ── */
         .register-header {
-            background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
-            color: white;
-            padding: 2rem;
+            padding: clamp(1.5rem,5vw,2rem) clamp(1.4rem,5vw,2rem) clamp(1.2rem,4vw,1.6rem);
             text-align: center;
-            border-radius: 20px 20px 0 0;
+            position: relative;
+            z-index: 2;
         }
-        
-        .register-body {
-            padding: 2rem;
+        .app-icon {
+            width: clamp(54px,12vw,68px);
+            height: clamp(54px,12vw,68px);
+            margin: 0 auto clamp(0.8rem,2.5vw,1rem);
+            background: linear-gradient(145deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.07) 100%);
+            border: 1px solid rgba(255,255,255,0.28);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25), 0 1px 0 rgba(255,255,255,0.28) inset;
         }
-        
-        .form-control, .form-select {
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
-        }
-        
-        .btn-register {
-            border-radius: 10px;
-            padding: 0.75rem;
+        .app-icon i { font-size: clamp(1.5rem,4vw,1.9rem); color: #fff; }
+
+        .register-header h3 {
+            font-size: clamp(1.15rem,3.5vw,1.45rem);
             font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        .register-header p {
+            margin-top: 0.3rem;
+            font-size: clamp(0.76rem,2.2vw,0.86rem);
+            color: var(--text-muted);
+        }
+
+        /* ── Hairline ── */
+        .hairline {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16) 30%, rgba(255,255,255,0.16) 70%, transparent);
+            margin: 0 clamp(1rem,4vw,1.5rem);
+        }
+
+        /* ── Body ── */
+        .register-body {
+            padding: clamp(1.2rem,4vw,1.8rem) clamp(1.4rem,5vw,2rem) clamp(1.4rem,5vw,2rem);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ── Section divider label ── */
+        .section-label {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+            padding-left: 2px;
+        }
+
+        .field-group { margin-bottom: clamp(0.65rem,2.5vw,0.85rem); }
+
+        /* ── Form labels ── */
+        .form-label {
+            display: block;
+            font-size: 0.72rem !important;
+            font-weight: 500;
+            color: var(--text-muted) !important;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 0.28rem;
+            padding-left: 2px;
+        }
+
+        /* ── Inputs & selects ── */
+        .form-control,
+        .form-select {
+            width: 100%;
+            background: var(--input-bg) !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: clamp(0.6rem,2vw,0.72rem) clamp(0.75rem,2.5vw,1rem) !important;
+            font-size: clamp(0.875rem,2.5vw,0.93rem) !important;
+            color: var(--text-primary) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+            font-family: inherit;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .form-control::placeholder { color: rgba(255,255,255,0.28) !important; }
+        .form-control:focus,
+        .form-select:focus {
+            outline: none !important;
+            background: var(--input-focus) !important;
+            border-color: rgba(255,255,255,0.30) !important;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.07), 0 0 18px rgba(52,210,123,0.10) !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* select arrow */
+        .form-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.5)' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 0.9rem center !important;
+            padding-right: 2.2rem !important;
+        }
+        .form-select option {
+            background: #1a2a3a;
+            color: #fff;
+        }
+
+        /* ── Error text ── */
+        .text-danger { color: #ff8a8a !important; font-size: 0.76rem; margin-top: 0.25rem; display: block; }
+
+        /* ── Submit button ── */
+        .btn-register {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            border: none !important;
+            border-radius: var(--radius-sm) !important;
+            padding: clamp(0.7rem,2.5vw,0.88rem) !important;
+            background: linear-gradient(135deg, #27c96e 0%, #1aab5c 100%) !important;
+            color: #fff !important;
+            font-size: clamp(0.88rem,2.5vw,0.96rem) !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 6px 20px var(--accent-glow), 0 2px 6px rgba(0,0,0,0.22) !important;
+            transition: filter 0.18s, transform 0.15s, box-shadow 0.18s !important;
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+            margin-top: clamp(0.8rem,2.5vw,1rem);
+        }
+        .btn-register::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s ease;
+        }
+        .btn-register:hover::after { left: 160%; }
+        .btn-register:hover {
+            filter: brightness(1.1) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 10px 28px var(--accent-glow), 0 4px 10px rgba(0,0,0,0.28) !important;
+        }
+        .btn-register:active { transform: translateY(0) !important; filter: brightness(0.96) !important; }
+
+        /* ── Footer link ── */
+        .footer-link {
+            text-align: center;
+            font-size: clamp(0.73rem,2vw,0.8rem);
+            color: var(--text-muted);
+            margin-top: clamp(0.7rem,2vw,0.9rem);
+        }
+        .footer-link a {
+            color: rgba(52,210,123,0.85);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer-link a:hover { color: #34d27b; text-decoration: underline; }
+
+        /* ── Two-column row ── */
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.5rem,2vw,0.75rem);
+        }
+        @media (max-width: 380px) {
+            .field-row { grid-template-columns: 1fr; }
+        }
+
+        /* ── Version tag ── */
+        .version-tag {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.72rem;
+            text-align: center;
+            margin-top: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ── Reduced motion ── */
+        @media (prefers-reduced-motion: reduce) {
+            .orb { animation: none; }
+            .register-card { animation: none; }
+            .btn-register::after { display: none; }
         }
     </style>
 </head>
 <body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+
     <div class="register-container">
         <div class="register-card">
+
             <div class="register-header">
-                <i class="bi bi-person-plus fs-1"></i>
-                <h3 class="mt-2 mb-0">Créer un compte</h3>
-                <p class="mb-0 opacity-75">Staff uniquement</p>
+                <div class="app-icon">
+                    <i class="bi bi-person-plus"></i>
+                </div>
+                <h3>Créer un compte</h3>
+                <p>Staff uniquement</p>
             </div>
-            
+
+            <div class="hairline"></div>
+
             <div class="register-body">
                 <form method="POST">
                     {{ form.hidden_tag() }}
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+
+                    <!-- Prénom / Nom -->
+                    <div class="field-row field-group">
+                        <div>
                             <label class="form-label">Prénom *</label>
                             {{ form.first_name(class="form-control", placeholder="Prénom") }}
                             {% if form.first_name.errors %}
-                            <div class="text-danger small">{{ form.first_name.errors[0] }}</div>
+                            <span class="text-danger">{{ form.first_name.errors[0] }}</span>
                             {% endif %}
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div>
                             <label class="form-label">Nom *</label>
                             {{ form.last_name(class="form-control", placeholder="Nom") }}
                             {% if form.last_name.errors %}
-                            <div class="text-danger small">{{ form.last_name.errors[0] }}</div>
+                            <span class="text-danger">{{ form.last_name.errors[0] }}</span>
                             {% endif %}
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
+
+                    <!-- Email -->
+                    <div class="field-group">
                         <label class="form-label">Email *</label>
                         {{ form.email(class="form-control", placeholder="votre@email.com") }}
                         {% if form.email.errors %}
-                        <div class="text-danger small">{{ form.email.errors[0] }}</div>
+                        <span class="text-danger">{{ form.email.errors[0] }}</span>
                         {% endif %}
                     </div>
-                    
-                    <div class="mb-3">
+
+                    <!-- Téléphone -->
+                    <div class="field-group">
                         <label class="form-label">Téléphone</label>
                         {{ form.phone(class="form-control", placeholder="+212...") }}
                     </div>
-                    
-                    <div class="mb-3">
+
+                    <!-- Rôle -->
+                    <div class="field-group">
                         <label class="form-label">Rôle *</label>
                         {{ form.role(class="form-select") }}
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
+
+                    <!-- Mot de passe / Confirmer -->
+                    <div class="field-row field-group">
+                        <div>
                             <label class="form-label">Mot de passe *</label>
                             {{ form.password(class="form-control", placeholder="••••••••") }}
                             {% if form.password.errors %}
-                            <div class="text-danger small">{{ form.password.errors[0] }}</div>
+                            <span class="text-danger">{{ form.password.errors[0] }}</span>
                             {% endif %}
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div>
                             <label class="form-label">Confirmer *</label>
                             {{ form.confirm_password(class="form-control", placeholder="••••••••") }}
                             {% if form.confirm_password.errors %}
-                            <div class="text-danger small">{{ form.confirm_password.errors[0] }}</div>
+                            <span class="text-danger">{{ form.confirm_password.errors[0] }}</span>
                             {% endif %}
                         </div>
                     </div>
-                    
-                    <button type="submit" class="btn btn-success btn-register w-100 mb-3">
-                        <i class="bi bi-person-plus me-1"></i>Créer mon compte
+
+                    <button type="submit" class="btn btn-register">
+                        <i class="bi bi-person-plus"></i>
+                        Créer mon compte
                     </button>
-                    
-                    <div class="text-center">
-                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
-                            Déjà un compte ? Se connecter
-                        </a>
-                    </div>
+
+                    <p class="footer-link">
+                        Déjà un compte ?
+                        <a href="{{ url_for('auth.login') }}">Se connecter</a>
+                    </p>
                 </form>
             </div>
         </div>
+
+        <p class="version-tag">SportTracker Pro v2.0 — Université Hassan 1er</p>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

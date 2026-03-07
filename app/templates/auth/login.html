@@ -3,198 +3,479 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - SportTracker Pro</title>
+    <title>Connexion - AdaaGps</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --glass-bg:     rgba(255,255,255,0.11);
+            --glass-border: rgba(255,255,255,0.28);
+            --input-bg:     rgba(255,255,255,0.10);
+            --input-focus:  rgba(255,255,255,0.20);
+            --text-primary: rgba(255,255,255,0.96);
+            --text-muted:   rgba(255,255,255,0.55);
+            --accent:       #34d27b;
+            --accent-glow:  rgba(52,210,123,0.40);
+            --radius:       22px;
+            --radius-sm:    13px;
+        }
+
+        html { font-size: 16px; }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #2C3E50 0%, #3498DB 100%);
-            min-height: 100vh;
+            font-family: -apple-system, 'Helvetica Neue', sans-serif;
+            min-height: 100svh;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
+            padding: clamp(1rem, 4vw, 2.5rem);
+            overflow-x: hidden;
+            background: #0a1628;
+            position: relative;
         }
-        
+
+        /* ── Mesh orbs ── */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 {
+            width: clamp(300px, 55vw, 700px); height: clamp(300px, 55vw, 700px);
+            background: radial-gradient(circle, #1a6aff 0%, transparent 70%);
+            top: -15%; left: -10%;
+            animation: drift1 18s ease-in-out infinite alternate;
+        }
+        .orb-2 {
+            width: clamp(240px, 45vw, 580px); height: clamp(240px, 45vw, 580px);
+            background: radial-gradient(circle, #0ea87e 0%, transparent 70%);
+            bottom: -10%; right: -8%;
+            animation: drift2 22s ease-in-out infinite alternate;
+        }
+        .orb-3 {
+            width: clamp(160px, 28vw, 360px); height: clamp(160px, 28vw, 360px);
+            background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+            top: 30%; right: 5%;
+            animation: drift3 15s ease-in-out infinite alternate;
+        }
+        .orb-4 {
+            width: clamp(130px, 20vw, 260px); height: clamp(130px, 20vw, 260px);
+            background: radial-gradient(circle, #ff6b6b 0%, transparent 70%);
+            bottom: 20%; left: 10%;
+            animation: drift1 19s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(4%,6%) scale(1.08); } }
+        @keyframes drift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-5%,-4%) scale(1.1); } }
+        @keyframes drift3 { from { transform: translate(0,0) scale(1); } to { transform: translate(-3%,5%) scale(0.95); } }
+
+        /* ── Container ── */
         .login-container {
             width: 100%;
-            max-width: 450px;
-            padding: 1rem;
+            max-width: min(440px, 100%);
+            position: relative;
+            z-index: 10;
         }
-        
+
+        /* ── Card ── */
         .login-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: var(--glass-bg);
+            backdrop-filter: blur(48px) saturate(180%);
+            -webkit-backdrop-filter: blur(48px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            box-shadow:
+                0 0 0 0.5px rgba(255,255,255,0.07) inset,
+                0 2px 0 rgba(255,255,255,0.16) inset,
+                0 32px 80px rgba(0,0,0,0.45),
+                0 8px 24px rgba(0,0,0,0.3);
             overflow: hidden;
+            position: relative;
+            animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
         }
-        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius);
+            background: linear-gradient(155deg, rgba(255,255,255,0.16) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(28px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── Header ── */
         .login-header {
-            background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
-            color: white;
-            padding: 2rem;
+            padding: clamp(1.6rem,5vw,2.2rem) clamp(1.4rem,5vw,2rem) clamp(1.2rem,4vw,1.6rem);
             text-align: center;
+            position: relative;
+            z-index: 2;
         }
-        
-        .login-header i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+        .app-icon {
+            width: clamp(54px,12vw,68px);
+            height: clamp(54px,12vw,68px);
+            margin: 0 auto clamp(0.8rem,2.5vw,1rem);
+            background: linear-gradient(145deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.07) 100%);
+            border: 1px solid rgba(255,255,255,0.28);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25), 0 1px 0 rgba(255,255,255,0.28) inset;
         }
-        
+        .app-icon i { font-size: clamp(1.5rem,4vw,1.9rem); color: #fff; }
+
+        .login-header h2 {
+            font-size: clamp(1.15rem,3.5vw,1.45rem);
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        .login-header p {
+            margin-top: 0.3rem;
+            font-size: clamp(0.76rem,2.2vw,0.86rem);
+            color: var(--text-muted);
+        }
+
+        /* ── Hairline ── */
+        .hairline {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16) 30%, rgba(255,255,255,0.16) 70%, transparent);
+            margin: 0 clamp(1rem,4vw,1.5rem);
+        }
+
+        /* ── Body ── */
         .login-body {
-            padding: 2rem;
+            padding: clamp(1.2rem,4vw,1.8rem) clamp(1.4rem,5vw,2rem) clamp(1.4rem,5vw,2rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.65rem,2.5vw,0.85rem);
+            position: relative;
+            z-index: 2;
         }
-        
+
+        /* ── Role selector ── */
         .role-selector {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            gap: clamp(0.5rem,2vw,0.7rem);
         }
-        
-        .role-option {
-            display: none;
-        }
-        
+        .role-option { display: none; }
         .role-label {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 1rem;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
+            gap: 0.3rem;
+            padding: clamp(0.65rem,2.5vw,0.9rem) 0.5rem;
+            background: var(--input-bg);
+            border: 1px solid rgba(250, 0, 0, 0);
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            transition: all 0.2s;
+            font-size: clamp(0.72rem,2vw,0.82rem);
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+            user-select: none;
         }
-        
-        .role-label:hover {
-            border-color: #3498DB;
-        }
-        
-        .role-option:checked + .role-label {
-            border-color: #27AE60;
-            background: rgba(39, 174, 96, 0.1);
-        }
-        
         .role-label i {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
+            font-size: clamp(1rem,3vw,1.3rem);
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
         }
-        
+        .role-label:hover {
+            background: rgba(255,255,255,0.17);
+            border-color: rgba(255,255,255,0.26);
+            color: var(--text-primary);
+        }
+        .role-label:hover i { transform: scale(1.15); }
+        .role-option:checked + .role-label {
+            background: linear-gradient(135deg, rgba(52,210,123,0.22), rgba(52,210,123,0.08));
+            border-color: rgba(52,210,123,0.55);
+            color: #7fffc4;
+            box-shadow: 0 0 16px rgba(52,210,123,0.18);
+        }
+
+        /* ── Field label ── */
+        .field-label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+            padding-left: 2px;
+        }
+
+        /* ── Inputs (override Bootstrap) ── */
         .form-control {
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
+            width: 100%;
+            background: var(--input-bg) !important;
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            border-radius: var(--radius-sm) !important;
+            padding: clamp(0.6rem,2vw,0.75rem) clamp(0.75rem,2.5vw,1rem) !important;
+            font-size: clamp(0.875rem,2.5vw,0.95rem) !important;
+            color: var(--text-primary) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+            -webkit-appearance: none;
+            appearance: none;
+            font-family: inherit;
         }
-        
-        .btn-login {
-            border-radius: 10px;
-            padding: 0.75rem;
-            font-weight: 600;
+        .form-control::placeholder { color: rgba(255,255,255,0.28) !important; }
+        .form-control:focus {
+            outline: none !important;
+            background: var(--input-focus) !important;
+            border-color: rgba(255,255,255,0.30) !important;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.07), 0 0 18px rgba(52,210,123,0.10) !important;
+            color: var(--text-primary) !important;
         }
-        
+
+        /* ── Checkbox ── */
+        .form-check-input {
+            background-color: var(--input-bg) !important;
+            border-color: rgba(255,255,255,0.25) !important;
+        }
+        .form-check-input:checked {
+            background-color: var(--accent) !important;
+            border-color: var(--accent) !important;
+        }
+        .form-check-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* ── Player help box ── */
         .player-help {
-            background: #e3f2fd;
-            border-left: 4px solid #2196F3;
-            padding: 1rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
+            background: rgba(59,130,246,0.10);
+            border: 1px solid rgba(59,130,246,0.28);
+            border-left: 3px solid rgba(59,130,246,0.7);
+            border-radius: var(--radius-sm);
+            padding: clamp(0.6rem,2.5vw,0.85rem) clamp(0.7rem,3vw,1rem);
+            font-size: clamp(0.74rem,2vw,0.81rem);
+            color: rgba(147,197,253,0.9);
+            line-height: 1.55;
         }
-        
+        .player-help code {
+            background: rgba(255,255,255,0.12);
+            border-radius: 5px;
+            padding: 0.1em 0.4em;
+            color: #93c5fd;
+            font-size: 0.82em;
+        }
+
+        /* ── Error text ── */
+        .text-danger { color: #ff8a8a !important; font-size: 0.78rem; }
+
+        /* ── Submit button ── */
+        .btn-login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            border: none !important;
+            border-radius: var(--radius-sm) !important;
+            padding: clamp(0.7rem,2.5vw,0.88rem) !important;
+            background: linear-gradient(135deg, #27c96e 0%, #1aab5c 100%) !important;
+            color: #fff !important;
+            font-size: clamp(0.88rem,2.5vw,0.96rem) !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 6px 20px var(--accent-glow), 0 2px 6px rgba(0,0,0,0.22) !important;
+            transition: filter 0.18s, transform 0.15s, box-shadow 0.18s !important;
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+        }
+        .btn-login::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s ease;
+        }
+        .btn-login:hover::after { left: 160%; }
+        .btn-login:hover {
+            filter: brightness(1.1) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.22) inset, 0 10px 28px var(--accent-glow), 0 4px 10px rgba(0,0,0,0.28) !important;
+        }
+        .btn-login:active { transform: translateY(0) !important; filter: brightness(0.96) !important; }
+
+        /* ── Footer link ── */
+        .footer-link {
+            text-align: center;
+            font-size: clamp(0.73rem,2vw,0.8rem);
+            color: var(--text-muted);
+        }
+        .footer-link a {
+            color: rgba(52,210,123,0.85);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer-link a:hover { color: #34d27b; text-decoration: underline; }
+
+        /* ── Players dropdown ── */
         .players-dropdown {
             max-height: 200px;
             overflow-y: auto;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.13) !important;
+            border-radius: var(--radius-sm);
+            padding: 0.5rem !important;
+        }
+        .players-dropdown::-webkit-scrollbar { width: 4px; }
+        .players-dropdown::-webkit-scrollbar-track { background: transparent; }
+        .players-dropdown::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+        .player-item {
+            color: var(--text-muted) !important;
+            font-size: 0.82rem;
+            padding: 0.4rem 0.5rem !important;
+            border-radius: 8px;
+            transition: background 0.15s, color 0.15s;
+            display: block;
+        }
+        .player-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary) !important;
+        }
+        .player-item small { color: rgba(255,255,255,0.35) !important; }
+
+        hr { border-color: rgba(255,255,255,0.12) !important; }
+
+        .form-label { color: var(--text-muted) !important; font-size: 0.78rem !important; font-weight: 500; }
+        .section-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* ── Version footer ── */
+        .version-tag {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.72rem;
+            text-align: center;
+            margin-top: 1rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ── Reduced motion ── */
+        @media (prefers-reduced-motion: reduce) {
+            .orb { animation: none; }
+            .login-card { animation: none; }
+            .btn-login::after { display: none; }
         }
     </style>
 </head>
 <body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+
     <div class="login-container">
         <div class="login-card">
+
             <div class="login-header">
-                <i class="bi bi-dribbble"></i>
-                <h2 class="mb-1">SportTracker Pro</h2>
-                <p class="mb-0 opacity-75">Plateforme de gestion GPS</p>
+                <div class="app-icon">
+                    <i class="bi bi-dribbble"></i>
+                </div>
+                <h2>AdaaGps</h2>
+                <p>Plateforme de gestion GPS</p>
             </div>
-            
+
+            <div class="hairline"></div>
+
             <div class="login-body">
                 <form method="POST" id="loginForm">
                     {{ form.hidden_tag() }}
-                    
-                    <!-- Sélection du rôle -->
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Je suis</label>
-                        <div class="role-selector">
+
+                    <!-- Rôle -->
+                    <div>
+                        <span class="section-label">Je suis</span>
+                        <div class="role-selector mt-2">
                             <div>
                                 <input type="radio" class="role-option" name="role" id="role_staff" value="coach" checked>
                                 <label class="role-label" for="role_staff">
-                                    <i class="bi bi-clipboard-data text-primary"></i>
+                                    <i class="bi bi-clipboard-data"></i>
                                     <span>Staff</span>
                                 </label>
                             </div>
                             <div>
                                 <input type="radio" class="role-option" name="role" id="role_player" value="player">
                                 <label class="role-label" for="role_player">
-                                    <i class="bi bi-person-fill text-success"></i>
+                                    <i class="bi bi-person-fill"></i>
                                     <span>Joueur</span>
                                 </label>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Email -->
-                    <div class="mb-3">
+                    <div>
                         <label for="email" class="form-label">Email</label>
                         {{ form.email(class="form-control", placeholder="votre@email.com") }}
                         {% if form.email.errors %}
-                        <div class="text-danger small mt-1">{{ form.email.errors[0] }}</div>
+                        <div class="text-danger mt-1">{{ form.email.errors[0] }}</div>
                         {% endif %}
                     </div>
-                    
-                    <!-- Mot de passe (staff uniquement) -->
-                    <div class="mb-3" id="passwordGroup">
+
+                    <!-- Mot de passe -->
+                    <div id="passwordGroup">
                         <label for="password" class="form-label">Mot de passe</label>
                         {{ form.password(class="form-control", placeholder="••••••••") }}
                     </div>
-                    
+
                     <!-- Aide joueurs -->
-                    <div class="player-help d-none mb-3" id="playerHelp">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Joueurs :</strong> Utilisez <code>prenom.nom@email.com</code>
-                        <br><small class="text-muted">Exemple: youssef.elamrani@sporttracker.com</small>
+                    <div class="player-help d-none" id="playerHelp">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong style="color:#93c5fd;">Joueurs :</strong> Utilisez <code>prenom.nom@email.com</code>
+                        <br><small style="color:rgba(147,197,253,0.6);">Exemple : youssef.elamrani@sporttracker.com</small>
                     </div>
-                    
-                    <!-- Remember me -->
-                    <div class="mb-4">
-                        <div class="form-check">
-                            {{ form.remember(class="form-check-input") }}
-                            <label class="form-check-label" for="remember">Se souvenir de moi</label>
-                        </div>
+
+                    <!-- Se souvenir -->
+                    <div class="form-check">
+                        {{ form.remember(class="form-check-input") }}
+                        <label class="form-check-label" for="remember">Se souvenir de moi</label>
                     </div>
-                    
+
                     <!-- Submit -->
-                    <button type="submit" class="btn btn-success btn-login w-100 mb-3">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+                    <button type="submit" class="btn btn-login">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        Se connecter
                     </button>
-                    
-                    <div class="text-center">
-                        <a href="{{ url_for('auth.register') }}" class="text-decoration-none">
-                            Créer un compte staff
-                        </a>
-                    </div>
+
+                    <p class="footer-link">
+                        <a href="{{ url_for('auth.register') }}">Créer un compte staff</a>
+                    </p>
                 </form>
-                
+
+                <!-- Liste joueurs -->
                 {% if players %}
-                <!-- Liste des joueurs (aide) -->
-                <div class="mt-4 d-none" id="playersList">
+                <div class="mt-3 d-none" id="playersList">
                     <hr>
-                    <label class="form-label small text-muted">Joueurs disponibles (cliquez pour remplir)</label>
-                    <div class="players-dropdown border rounded p-2">
+                    <label class="section-label">Joueurs disponibles (cliquez pour remplir)</label>
+                    <div class="players-dropdown mt-2">
                         {% for player in players[:10] %}
-                        <a href="#" class="d-block text-decoration-none py-1 player-item"
+                        <a href="#" class="player-item text-decoration-none"
                            data-email="{{ player.first_name|lower }}.{{ player.last_name|lower }}@sporttracker.com">
                             {{ player.full_name }}
-                            <small class="text-muted">({{ player.team.name if player.team else 'Sans équipe' }})</small>
+                            <small>({{ player.team.name if player.team else 'Sans équipe' }})</small>
                         </a>
                         {% endfor %}
                     </div>
@@ -202,21 +483,19 @@
                 {% endif %}
             </div>
         </div>
-        
-        <p class="text-center text-white mt-4 opacity-75">
-            <small>SportTracker Pro v2.0 - Université Hassan 1er</small>
-        </p>
+
+        <p class="version-tag">SportTracker Pro v2.0 — Université Hassan 1er</p>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const roleStaff = document.getElementById('role_staff');
+        const roleStaff  = document.getElementById('role_staff');
         const rolePlayer = document.getElementById('role_player');
         const passwordGroup = document.getElementById('passwordGroup');
-        const playerHelp = document.getElementById('playerHelp');
-        const playersList = document.getElementById('playersList');
-        const emailInput = document.querySelector('input[name="email"]');
-        
+        const playerHelp    = document.getElementById('playerHelp');
+        const playersList   = document.getElementById('playersList');
+        const emailInput    = document.querySelector('input[name="email"]');
+
         function updateForm() {
             if (rolePlayer.checked) {
                 passwordGroup.classList.add('d-none');
@@ -228,11 +507,10 @@
                 if (playersList) playersList.classList.add('d-none');
             }
         }
-        
+
         roleStaff.addEventListener('change', updateForm);
         rolePlayer.addEventListener('change', updateForm);
-        
-        // Remplir l'email au clic sur un joueur
+
         document.querySelectorAll('.player-item').forEach(item => {
             item.addEventListener('click', function(e) {
                 e.preventDefault();

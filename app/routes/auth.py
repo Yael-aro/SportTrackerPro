@@ -50,7 +50,7 @@ def login():
                 session['user_role'] = 'player'
                 session['player_id'] = player.id
                 
-                flash(f'Bienvenue {player.first_name} ! ⚽', 'success')
+                flash(f'Bienvenue {player.first_name} ! ', 'success')
                 return redirect(url_for('player_portal.dashboard'))
             else:
                 flash('Joueur non trouvé. Utilisez prenom.nom@email.com', 'danger')
@@ -64,7 +64,7 @@ def login():
                     login_user(user)
                     session['user_role'] = user.role
                     
-                    flash(f'Bienvenue {user.first_name} ! 🏆', 'success')
+                    flash(f'Bienvenue {user.first_name} ! ', 'success')
                     return redirect_by_role(user.role)
                 else:
                     flash('Votre compte est désactivé.', 'danger')
