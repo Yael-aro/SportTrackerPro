@@ -13,7 +13,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    """Page de connexion multi-rôles"""
+    """Page de connexion unifiée"""
     if current_user.is_authenticated:
         return redirect_by_role(current_user.role)
     
@@ -22,59 +22,23 @@ def login():
     if form.validate_on_submit():
         email = form.email.data.lower()
         password = form.password.data
-        role = form.role.data
         
-        # Mode joueur simplifié
-        if role == 'player':
-            # Chercher le joueur par email ou prénom.nom
-            player = find_player_by_email(email)
-            
-            if player:
-                # Créer ou récupérer le compte utilisateur lié
-                user = User.query.filter_by(player_id=player.id).first()
-                
-                if not user:
-                    # Créer automatiquement un compte joueur
-                    user = User(
-                        email=email,
-                        first_name=player.first_name,
-                        last_name=player.last_name,
-                        role='player',
-                        player_id=player.id
-                    )
-                    user.set_password('player123')  # Mot de passe par défaut
-                    db.session.add(user)
-                    db.session.commit()
-                
+        # Rechercher l'utilisateur par email
+        user = User.query.filter_by(email=email).first()
+        
+        if user and user.check_password(password):
+            if user.is_active:
                 login_user(user)
-                session['user_role'] = 'player'
-                session['player_id'] = player.id
+                session['user_role'] = user.role
                 
-                flash(f'Bienvenue {player.first_name} ! ', 'success')
-                return redirect(url_for('player_portal.dashboard'))
+                flash(f'Bienvenue {user.first_name} !', 'success')
+                return redirect_by_role(user.role)
             else:
-                flash('Joueur non trouvé. Utilisez prenom.nom@email.com', 'danger')
-        
+                flash('Votre compte est désactivé.', 'danger')
         else:
-            # Connexion staff (coach, medical, admin, etc.)
-            user = User.query.filter_by(email=email).first()
-            
-            if user and user.check_password(password):
-                if user.is_active:
-                    login_user(user)
-                    session['user_role'] = user.role
-                    
-                    flash(f'Bienvenue {user.first_name} ! ', 'success')
-                    return redirect_by_role(user.role)
-                else:
-                    flash('Votre compte est désactivé.', 'danger')
-            else:
-                flash('Email ou mot de passe incorrect.', 'danger')
+            flash('Email ou mot de passe incorrect.', 'danger')
     
-    # Récupérer la liste des joueurs pour l'aide à la connexion
-    players = Player.query.order_by(Player.last_name).all()
-    
-    return render_template('auth/login.html', form=form, players=players)
+    return render_template('auth/login.html', form=form)
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
@@ -206,35 +170,6 @@ def profile():
 # FONCTIONS UTILITAIRES
 # =============================================================================
 
-def find_player_by_email(email):
-    """
-    Trouve un joueur par son email.
-    Supporte le format prenom.nom@domain.com
-    """
-    # D'abord chercher par email exact
-    player = Player.query.filter_by(email=email).first()
-    if player:
-        return player
-    
-    # Sinon, parser prenom.nom
-    try:
-        local_part = email.split('@')[0]
-        parts = local_part.split('.')
-        
-        if len(parts) >= 2:
-            first_name = parts[0]
-            last_name = parts[1]
-            
-            player = Player.query.filter(
-                db.func.lower(Player.first_name) == first_name.lower(),
-                db.func.lower(Player.last_name) == last_name.lower()
-            ).first()
-            
-            return player
-    except:
-        pass
-    
-    return None
 
 
 def redirect_by_role(role):

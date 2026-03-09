@@ -1,0 +1,165 @@
+{% extends "shared/base.html" %}
+
+{% block title %}À Propos de SportTracker Pro{% endblock %}
+
+{% block content %}
+<style>
+    .about-hero {
+        padding: 5rem 2rem;
+        background: linear-gradient(135deg, rgba(52,210,123,0.1) 0%, rgba(26,106,255,0.05) 100%);
+        border-bottom: 1px solid rgba(52,210,123,0.15);
+    }
+    .about-section {
+        padding: 4rem 2rem;
+    }
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    .team-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    .team-card:hover {
+        border-color: #34d27b;
+        background: rgba(52,210,123,0.05);
+    }
+    .team-card h3 {
+        margin-top: 1rem;
+        color: #34d27b;
+    }
+    .stat-box {
+        background: rgba(52,210,123,0.1);
+        border: 1px solid rgba(52,210,123,0.2);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        margin: 1rem;
+    }
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #34d27b;
+    }
+    .stat-label {
+        color: rgba(255,255,255,0.6);
+        margin-top: 0.5rem;
+    }
+</style>
+
+<section class="about-hero">
+    <div class="container-lg">
+        <h1 style="font-size: 3rem; font-weight: 900; margin-bottom: 1rem;">À Propos de SportTracker Pro</h1>
+        <p style="font-size: 1.2rem; color: rgba(255,255,255,0.7); max-width: 700px; line-height: 1.7;">
+            SportTracker Pro est née de la vision de transformer la gestion sportive grâce aux données et à la technologie. 
+            Nous croyons que chaque athlète mérite accès aux meilleurs outils d'analyse et de suivi de performance.
+        </p>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="container-lg">
+        <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 2rem;">Notre Mission</h2>
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <h3 style="color: #34d27b; margin-bottom: 1rem;">Objectif Principal</h3>
+                <p style="color: rgba(255,255,255,0.7); line-height: 1.8;">
+                    Fournir une plateforme intuitive et puissante pour la gestion complète des performances sportives. 
+                    Depuis le suivi GPS avancé jusqu'à la gestion médicale, tout est intégré pour optimiser chaque aspect 
+                    de l'entraînement et de la compétition.
+                </p>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <h3 style="color: #34d27b; margin-bottom: 1rem;">Nos Valeurs</h3>
+                <ul style="color: rgba(255,255,255,0.7); line-height: 1.8;">
+                    <li><strong>Excellence:</strong> Fournir des solutions de haute qualité</li>
+                    <li><strong>Innovation:</strong> Intégrer les dernières technologies</li>
+                    <li><strong>Sécurité:</strong> Protéger les données des utilisateurs</li>
+                    <li><strong>Accessibilité:</strong> Rendre la technologie accessible à tous</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section" style="background: rgba(52,210,123,0.05);">
+    <div class="container-lg">
+        <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 3rem; text-align: center;">Nos Réalisations</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-3 col-6">
+                <div class="stat-box">
+                    <div class="stat-number">8+</div>
+                    <div class="stat-label">Rôles d'Utilisateurs</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-box">
+                    <div class="stat-number">30+</div>
+                    <div class="stat-label">Métriques GPS</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-box">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">API REST</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-box">
+                    <div class="stat-number">9</div>
+                    <div class="stat-label">Modèles de Données</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="container-lg">
+        <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 2rem;">Notre Équipe</h2>
+        <div class="team-grid">
+            <div class="team-card">
+                <i class="bi bi-person-circle" style="font-size: 3rem; color: #34d27b;"></i>
+                <h3>Développement & Backend</h3>
+                <p style="color: rgba(255,255,255,0.6); margin-top: 1rem;">
+                    Architecture robuste en Flask, SQLAlchemy et APIs REST pour une performance optimale.
+                </p>
+            </div>
+            <div class="team-card">
+                <i class="bi bi-palette2" style="font-size: 3rem; color: #34d27b;"></i>
+                <h3>Design & Frontend</h3>
+                <p style="color: rgba(255,255,255,0.6); margin-top: 1rem;">
+                    Interfaces modernes et responsives avec Bootstrap et design systems avancés.
+                </p>
+            </div>
+            <div class="team-card">
+                <i class="bi bi-database" style="font-size: 3rem; color: #34d27b;"></i>
+                <h3>Data & Analytics</h3>
+                <p style="color: rgba(255,255,255,0.6); margin-top: 1rem;">
+                    Traitement avancé des données GPS et métriques de performance pour insights actionnables.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section" style="background: rgba(52,210,123,0.05); text-align: center;">
+    <div class="container-lg">
+        <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 1rem;">Technologie & Innovation</h2>
+        <p style="color: rgba(255,255,255,0.7); margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.7;">
+            SportTracker Pro est construite avec les dernières technologies web : Flask 3.0+, SQLAlchemy 2.0, Bootstrap 5, 
+            notifications par email avec Flask-Mail, génération de PDF avec ReportLab, et une API REST complète.
+        </p>
+        <a href="{{ url_for('main.documentation') }}" class="btn btn-primary-custom">
+            <i class="bi bi-file-pdf"></i> Documentation Technique
+        </a>
+    </div>
+</section>
+
+{% endblock %}

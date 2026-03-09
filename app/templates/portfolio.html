@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportTracker Pro | Plateforme de Gestion de Performance Sportive</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #34d27b;
+            --primary-dark: #0ea87e;
+            --secondary: #1a6aff;
+            --accent: #7c3aed;
+            --bg-dark: #0a1628;
+            --bg-card: rgba(255,255,255,0.05);
+            --text-light: rgba(255,255,255,0.92);
+            --text-muted: rgba(255,255,255,0.55);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #0f2844 50%, #1a1a3e 100%);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Mesh Gradient Background */
+        .mesh-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .mesh-bg::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #1a6aff 0%, transparent 70%);
+            top: -10%;
+            left: -5%;
+            filter: blur(80px);
+            animation: drift 20s ease-in-out infinite;
+        }
+        .mesh-bg::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #0ea87e 0%, transparent 70%);
+            bottom: 0;
+            right: -5%;
+            filter: blur(80px);
+            animation: drift 18s ease-in-out infinite reverse;
+        }
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, 20px); }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(10, 22, 40, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.35rem;
+            color: var(--primary) !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-link {
+            color: var(--text-light) !important;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 6rem 2rem;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(52,210,123,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 950px;
+            text-align: center;
+            animation: slideUp 0.8s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero h1 {
+            font-size: clamp(2.2rem, 9vw, 3.8rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            color: var(--text-light);
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--primary) 0%, #34d27b 50%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+            font-weight: 400;
+        }
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border: none;
+            padding: 0.95rem 2.8rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s;
+            color: #000;
+            font-size: 1rem;
+            box-shadow: 0 10px 30px rgba(52,210,123,0.2);
+        }
+        .btn-primary-custom:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(52,210,123,0.35);
+        }
+        .btn-secondary-custom {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 0.9rem 2.5rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn-secondary-custom:hover {
+            background: rgba(52,210,123,0.1);
+            border-color: var(--primary-dark);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 7rem 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 0.8rem;
+            text-align: center;
+            letter-spacing: -0.01em;
+            color: var(--text-light);
+        }
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            text-align: center;
+            max-width: 650px;
+            margin: 0 auto 4rem;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 2.8rem 2.2rem;
+            height: 100%;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(52,210,123,0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .feature-card:hover {
+            border-color: rgba(52,210,123,0.3);
+            background: rgba(255,255,255,0.07);
+            transform: translateY(-8px);
+        }
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            display: inline-block;
+        }
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+        .feature-card p {
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, rgba(52,210,123,0.08) 0%, rgba(26,106,255,0.04) 100%);
+            border-top: 1px solid rgba(52,210,123,0.15);
+            border-bottom: 1px solid rgba(52,210,123,0.15);
+            margin: 3rem 0;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+        }
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 0.7rem;
+            font-weight: 500;
+        }
+
+        /* Modules Section */
+        .modules {
+            padding: 7rem 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .module-badge {
+            display: inline-block;
+            background: rgba(52, 210, 123, 0.15);
+            color: var(--primary);
+            padding: 0.45rem 1.2rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Timeline */
+        .timeline {
+            padding: 7rem 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        .timeline-item {
+            padding: 2rem;
+            background: var(--bg-card);
+            border-left: 3px solid var(--primary);
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .timeline-item:hover {
+            background: rgba(255,255,255,0.08);
+            border-left-color: var(--primary-dark);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 30px;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 3px solid var(--bg-dark);
+        }
+        .timeline-date {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+        .timeline-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+            color: var(--text-light);
+        }
+        .timeline-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 7rem 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(135deg, rgba(52,210,123,0.05) 0%, rgba(26,106,255,0.03) 100%);
+            border-top: 1px solid rgba(52,210,123,0.15);
+            border-bottom: 1px solid rgba(52,210,123,0.15);
+        }
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+        .cta p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(0,0,0,0.5);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 4rem 2rem 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .footer-section h4 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        .footer-section li {
+            margin-bottom: 0.7rem;
+        }
+        .footer-section a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+        .footer-section a:hover {
+            color: var(--primary);
+        }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .footer-logo {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .section-title { font-size: 1.8rem; }
+            .stat-number { font-size: 1.8rem; }
+            .module-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="mesh-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-lg">
+            <a class="navbar-brand" href="#home">
+                <i class="bi bi-activity"></i> SportTracker Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#features">Fonctionnalités</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#modules">Modules</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#roadmap">Roadmap</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Connexion</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Maximisez les Performances de Vos Athlètes avec <span class="highlight">SportTracker Pro</span></h1>
+            <p>La plateforme complète de gestion et d'analyse des performances sportives. Suivi GPS avancé, gestion médicale intégrée, et dashboards intelligents pour tous les rôles.</p>
+            <div style="display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary-custom">
+                    <i class="bi bi-box-arrow-in-right"></i> Connexion
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-secondary-custom">
+                    <i class="bi bi-person-plus"></i> Créer un Compte
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="container-lg">
+            <div class="row">
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">8+</div>
+                        <div class="stat-label">Rôles Utilisateurs</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">9</div>
+                        <div class="stat-label">Modèles de Données</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">30+</div>
+                        <div class="stat-label">Métriques GPS</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">API REST</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container-lg">
+            <h2 class="section-title">Fonctionnalités Avancées</h2>
+            <p class="section-subtitle">Une suite complète d'outils pour optimiser chaque aspect de la gestion sportive</p>
+
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-geo-alt"></i></div>
+                        <h3>Suivi GPS & Métriques</h3>
+                        <p>Analyse complète avec 30+ métriques détaillées : ACWR, TSB, Fitness, Fatigue et bien plus pour une optimisation maximale des charges d'entraînement.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-heart-pulse"></i></div>
+                        <h3>Gestion Médicale</h3>
+                        <p>Suivi intégral des blessures, wellness tracking en temps réel et alertes automatiques pour la prévention des surcharges d'entraînement.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-shield-lock"></i></div>
+                        <h3>Contrôle d'Accès Avancé</h3>
+                        <p>8 rôles utilisateurs avec permissions granulaires pour une sécurité et une organisation optimales de vos données sensibles.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-graph-up"></i></div>
+                        <h3>Dashboards Intelligents</h3>
+                        <p>Visualisations personnalisées pour chaque rôle avec données en temps réel et insights actionnables pour les décisions stratégiques.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-file-pdf"></i></div>
+                        <h3>Rapports PDF Automatisés</h3>
+                        <p>Génération instantanée de rapports professionnels pour les joueurs et les équipes avec graphiques et analyses détaillées.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-bell"></i></div>
+                        <h3>Notifications en Temps Réel</h3>
+                        <p>Alertes intelligentes par email pour les blessures, les surcharges d'entraînement et les seuils de wellness critiques.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modules Section -->
+    <section class="modules" id="modules">
+        <div class="container-lg">
+            <h2 class="section-title">Modules Intégrés</h2>
+            <p class="section-subtitle">Une suite complète d'outils pour tous les aspects du management sportif</p>
+
+            <div class="module-grid">
+                <div class="feature-card">
+                    <span class="module-badge">✅ Complet</span>
+                    <h3>Gestion d'Équipes</h3>
+                    <p>Création et organisation complète des équipes avec attribution des joueurs et gestion des données collectives.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="module-badge">✅ Complet</span>
+                    <h3>Profils Joueurs</h3>
+                    <p>Gestion complète des fiches joueurs avec historique des performances, blessures et progression d'entraînement.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="module-badge">✅ Complet</span>
+                    <h3>Sessions d'Entraînement</h3>
+                    <p>Planification et suivi des séances avec résultats, analyses et recommandations personnalisées.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="module-badge">✅ Complet</span>
+                    <h3>Données GPS</h3>
+                    <p>Import et analyse avancée des données GPS avec 30+ métriques de performance et indicateurs de charge.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="module-badge">✅ Complet</span>
+                    <h3>Module Médical</h3>
+                    <p>Suivi des blessures, wellness tracking et alertes automatiques pour la prévention des surcharges.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="module-badge">✅ Complet</span>
+                    <h3>API REST</h3>
+                    <p>API complète avec 10+ endpoints pour intégration tierce et développements futurs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap Section -->
+    <section class="timeline" id="roadmap">
+        <div class="container-lg">
+            <h2 class="section-title">Roadmap Phase 2</h2>
+            <p class="section-subtitle">Améliorations et fonctionnalités en cours de développement</p>
+
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="timeline-item">
+                        <div class="timeline-date">Q2 2026</div>
+                        <div class="timeline-title">Tests Automatisés</div>
+                        <div class="timeline-desc">Suite de tests complète avec couverture >80% et CI/CD pipeline.</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Q2 2026</div>
+                        <div class="timeline-title">Modèles ML</div>
+                        <div class="timeline-desc">Prédiction des blessures et optimisation des charges d'entraînement basées sur ML.</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Q3 2026</div>
+                        <div class="timeline-title">WebSocket Real-time</div>
+                        <div class="timeline-desc">Live dashboards avec mises à jour en temps réel et notifications instantanées.</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Q3 2026</div>
+                        <div class="timeline-title">Application Mobile</div>
+                        <div class="timeline-desc">Apps iOS/Android natives pour suivi sur le terrain et alertes en direct.</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Q4 2026</div>
+                        <div class="timeline-title">Authentification 2FA</div>
+                        <div class="timeline-desc">Double authentification avec SMS/email et clés de sécurité.</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Q4 2026</div>
+                        <div class="timeline-title">Intégration Wearables</div>
+                        <div class="timeline-desc">Support des smartwatches (Apple Watch, Garmin) avec données synchronisées en temps réel.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container-lg" style="max-width: 800px;">
+            <h2>Démarrez Dès Aujourd'hui</h2>
+            <p>Rejoignez les équipes qui transforment leurs données en victoires. Accédez à la plateforme pour optimiser chaque aspect de vos performances.</p>
+            <div style="display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary-custom">
+                    <i class="bi bi-box-arrow-in-right"></i> Se Connecter
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-secondary-custom">
+                    <i class="bi bi-person-plus"></i> Créer un Compte
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container-lg">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo"><i class="bi bi-activity"></i> SportTracker Pro</div>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Plateforme innovante de gestion des performances sportives. Suivi GPS avancé, gestion médicale intégrée et dashboards intelligents pour tous les niveaux.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Produit</h4>
+                    <ul>
+                        <li><a href="#features">Fonctionnalités</a></li>
+                        <li><a href="#modules">Modules</a></li>
+                        <li><a href="#roadmap">Roadmap</a></li>
+                        <li><a href="{{ url_for('auth.login') }}">Connexion</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Ressources</h4>
+                    <ul>
+                        <li><a href="{{ url_for('main.documentation') }}">Documentation</a></li>
+                        <li><a href="{{ url_for('main.support') }}">Support</a></li>
+                        <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
+                        <li><a href="#">API Docs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Entreprise</h4>
+                    <ul>
+                        <li><a href="{{ url_for('main.about') }}">À Propos</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Carrières</a></li>
+                        <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 SportTracker Pro | Université Hassan 1er | <a href="{{ url_for('main.terms') }}" style="color: var(--text-muted); text-decoration: none;">Conditions</a> · <a href="{{ url_for('main.privacy') }}" style="color: var(--text-muted); text-decoration: none;">Confidentialité</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

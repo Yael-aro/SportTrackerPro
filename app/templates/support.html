@@ -1,0 +1,245 @@
+{% extends "shared/base.html" %}
+
+{% block title %}Support - SportTracker Pro{% endblock %}
+
+{% block content %}
+<style>
+    .support-hero {
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, rgba(52,210,123,0.1) 0%, rgba(26,106,255,0.05) 100%);
+        border-bottom: 1px solid rgba(52,210,123,0.15);
+        text-align: center;
+    }
+    .support-content {
+        padding: 4rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .faq-item {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s;
+    }
+    .faq-item.active {
+        background: rgba(52,210,123,0.1);
+        border-color: #34d27b;
+    }
+    .faq-question {
+        padding: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+    }
+    .faq-question h3 {
+        color: #34d27b;
+        font-weight: 700;
+        margin: 0;
+        font-size: 1rem;
+    }
+    .faq-icon {
+        font-size: 1.2rem;
+        color: #34d27b;
+        transition: transform 0.3s;
+    }
+    .faq-item.active .faq-icon {
+        transform: rotate(180deg);
+    }
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        padding: 0 1.5rem;
+    }
+    .faq-item.active .faq-answer {
+        max-height: 500px;
+        padding-bottom: 1.5rem;
+    }
+    .faq-answer p {
+        color: rgba(255,255,255,0.7);
+        line-height: 1.7;
+    }
+    .support-methods {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+    .support-method {
+        background: rgba(52,210,123,0.1);
+        border: 1px solid rgba(52,210,123,0.2);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+    }
+    .support-method i {
+        font-size: 2.5rem;
+        color: #34d27b;
+        margin-bottom: 1rem;
+    }
+    .support-method h3 {
+        color: #34d27b;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<section class="support-hero">
+    <h1 style="font-size: 2.5rem; font-weight: 900; margin-bottom: 1rem;">Centre d'Assistance</h1>
+    <p style="color: rgba(255,255,255,0.7); max-width: 600px; margin-left: auto; margin-right: auto;">
+        Trouvez des réponses rapides à vos questions ou contactez notre équipe d'assistance.
+    </p>
+</section>
+
+<section class="support-content">
+    <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 2rem; text-align: center;">Comment pouvons-nous vous aider?</h2>
+    
+    <div class="support-methods">
+        <div class="support-method">
+            <i class="bi bi-question-circle"></i>
+            <h3>FAQ</h3>
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Questions fréquemment posées</p>
+        </div>
+        <div class="support-method">
+            <i class="bi bi-chat-dots"></i>
+            <h3>Chat en Direct</h3>
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Disponible Lun-Ven 9h-18h</p>
+        </div>
+        <div class="support-method">
+            <i class="bi bi-envelope"></i>
+            <h3>Email</h3>
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Réponse dans 24 heures</p>
+        </div>
+        <div class="support-method">
+            <i class="bi bi-headset"></i>
+            <h3>Téléphone</h3>
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">+212 999 999 999</p>
+        </div>
+    </div>
+
+    <div style="max-width: 900px; margin: 0 auto;">
+        <h3 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 2rem; text-align: center;">Questions Fréquemment Posées</h3>
+        
+        <div class="faq-item active">
+            <div class="faq-question">
+                <h3>Comment créer un compte?</h3>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>
+                    Pour créer un compte, cliquez sur "Créer un compte" sur la page d'accueil. Remplissez le formulaire avec vos informations 
+                    et attendez l'approbation. Les comptes staff doivent être approuvés par un administrateur.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <h3>Comment importer des données GPS?</h3>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>
+                    Allez à la section GPS, cliquez sur "Importer des données" et sélectionnez votre fichier GPS (CSV ou JSON). 
+                    La plateforme va traiter les données automatiquement et calculer les métriques.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <h3>Quels formats de fichiers sont supportés?</h3>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>
+                    Nous supportons les formats CSV, JSON, et GPX pour les données GPS. Pour les rapports, 
+                    nous exportons en PDF. Contactez-nous si vous avez besoin d'autres formats.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <h3>Comment modifier les permissions d'un utilisateur?</h3>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>
+                    Les administrateurs peuvent modifier les rôles des utilisateurs depuis le dashboard Admin. 
+                    Chaque rôle a des permissions spécifiques définies dans le système.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <h3>Mes données sont-elles sécurisées?</h3>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>
+                    Oui, toutes les données sont chiffrées en transit et au repos. Nous utilisons les standards de sécurité 
+                    les plus élevés et effectuons des audits réguliers. Voir notre politique de confidentialité.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <h3>Comment générer des rapports?</h3>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>
+                    Accédez au profil d'un joueur ou d'une équipe et cliquez sur "Générer Rapport". 
+                    Le PDF sera créé automatiquement avec toutes les données pertinentes.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <h3>Comment contacter le support?</h3>
+                <i class="bi bi-chevron-down faq-icon"></i>
+            </div>
+            <div class="faq-answer">
+                <p>
+                    Vous pouvez nous contacter via email à support@sporttrackerpro.com, 
+                    par téléphone au +212 999 999 999, ou via le formulaire de contact sur notre site.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div style="background: rgba(52,210,123,0.1); border: 1px solid rgba(52,210,123,0.2); border-radius: 12px; padding: 2rem; text-align: center; margin-top: 3rem;">
+        <h3 style="color: #34d27b; margin-bottom: 1rem;">Vous ne trouvez pas la réponse?</h3>
+        <p style="color: rgba(255,255,255,0.7); margin-bottom: 1.5rem;">Contactez notre équipe de support</p>
+        <a href="{{ url_for('main.contact') }}" class="btn" style="background: linear-gradient(135deg, #34d27b 0%, #0ea87e 100%); border: none; color: #000; font-weight: 600; padding: 0.9rem 2rem; border-radius: 8px; text-decoration: none;">
+            <i class="bi bi-envelope"></i> Envoyer un Message
+        </a>
+    </div>
+</section>
+
+<script>
+    document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', function() {
+            const faqItem = this.parentElement;
+            const isActive = faqItem.classList.contains('active');
+            
+            // Fermer tous les autres
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Ouvrir le courant si fermé
+            if (!isActive) {
+                faqItem.classList.add('active');
+            }
+        });
+    });
+</script>
+
+{% endblock %}

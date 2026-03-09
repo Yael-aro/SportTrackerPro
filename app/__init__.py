@@ -8,6 +8,7 @@ from flask import Flask, session, send_from_directory
 from flask_login import LoginManager
 from config import config
 from app.models import db, User
+from app.services import mail
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -25,6 +26,7 @@ def create_app(config_name='default'):
     # Initialisation des extensions
     db.init_app(app)
     login_manager.init_app(app)
+    mail.init_app(app)
     
     # Créer le dossier instance si nécessaire
     instance_path = os.path.join(os.path.dirname(app.root_path), 'instance')
@@ -57,6 +59,7 @@ def create_app(config_name='default'):
     from app.routes.player_portal import player_portal_bp
     from app.routes.medical import medical_bp
     from app.routes.api import api_bp
+    from app.routes.exports import export_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
@@ -68,6 +71,7 @@ def create_app(config_name='default'):
     app.register_blueprint(player_portal_bp, url_prefix='/player')
     app.register_blueprint(medical_bp, url_prefix='/medical')
     app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(export_bp)
     
     # Route pour servir les fichiers uploadés
     base_uploads_path = os.path.join(os.path.dirname(app.root_path), 'uploads')

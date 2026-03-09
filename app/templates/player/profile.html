@@ -235,8 +235,7 @@
                 </a>
             </div>
             <div class="card-body">
-                {% if player.injuries %}
-                    {% set recent_injuries = player.injuries.order_by('created_at').limit(3).all() %}
+                {% if recent_injuries %}
                     {% for injury in recent_injuries %}
                     <div class="alert alert-warning mb-2" role="alert">
                         <strong>{{ injury.type }}</strong> - {{ injury.date.strftime('%d/%m/%Y') }}
@@ -260,8 +259,7 @@
                 </a>
             </div>
             <div class="card-body">
-                {% if player.wellness_records %}
-                    {% set last_wellness = player.wellness_records.order_by('created_at').first() %}
+                {% if last_wellness %}
                     <div class="row text-center">
                         <div class="col-4">
                             <div class="fs-5 fw-bold">{{ last_wellness.sleep_hours or '-' }}</div>
@@ -277,9 +275,11 @@
                         </div>
                     </div>
                     <hr>
+                    {% if last_wellness %}
                     <small class="text-muted">
-                        <i class="bi bi-clock me-1"></i>Mis à jour: {{ last_wellness.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        <i class="bi bi-clock me-1"></i>Mis à jour: {{ last_wellness.created_at.strftime('%d/%m/%Y %H:%M') if last_wellness.created_at else 'N/A' }}
                     </small>
+                    {% endif %}
                 {% else %}
                 <p class="text-muted text-center py-3">
                     <i class="bi bi-info-circle me-1"></i>Aucune donnée de bien-être enregistrée

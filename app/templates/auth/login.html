@@ -163,44 +163,20 @@
             z-index: 2;
         }
 
-        /* ── Role selector ── */
-        .role-selector {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: clamp(0.5rem,2vw,0.7rem);
+        /* ── Select dropdown styling ── */
+        select.form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba%28255,255,255,0.6%29' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right clamp(0.7rem,2.5vw,1rem) center;
+            padding-right: clamp(2.3rem, 5vw, 2.8rem) !important;
         }
-        .role-option { display: none; }
-        .role-label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.3rem;
-            padding: clamp(0.65rem,2.5vw,0.9rem) 0.5rem;
-            background: var(--input-bg);
-            border: 1px solid rgba(250, 0, 0, 0);
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: clamp(0.72rem,2vw,0.82rem);
-            font-weight: 500;
-            color: var(--text-muted);
-            transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
-            user-select: none;
-        }
-        .role-label i {
-            font-size: clamp(1rem,3vw,1.3rem);
-            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .role-label:hover {
-            background: rgba(255,255,255,0.17);
-            border-color: rgba(255,255,255,0.26);
-            color: var(--text-primary);
-        }
-        .role-label:hover i { transform: scale(1.15); }
-        .role-option:checked + .role-label {
-            background: linear-gradient(135deg, rgba(52,210,123,0.22), rgba(52,210,123,0.08));
-            border-color: rgba(52,210,123,0.55);
-            color: #7fffc4;
-            box-shadow: 0 0 16px rgba(52,210,123,0.18);
+        select.form-control option {
+            background: #0a1628;
+            color: rgba(255,255,255,0.96);
+            padding: 0.5rem;
         }
 
         /* ── Field label ── */
@@ -397,7 +373,7 @@
                          alt="AdaaGps Logo" 
                          style="width: 100%; height: 100%; object-fit: contain;">
                 </div>
-                <h2>AdaaGps</h2>
+                <h2>AdaaTracker</h2>
                 <p>Plateforme de gestion GPS</p>
             </div>
 
@@ -406,27 +382,6 @@
             <div class="login-body">
                 <form method="POST" id="loginForm">
                     {{ form.hidden_tag() }}
-
-                    <!-- Rôle -->
-                    <div>
-                        <span class="section-label">Je suis</span>
-                        <div class="role-selector mt-2">
-                            <div>
-                                <input type="radio" class="role-option" name="role" id="role_staff" value="coach" checked>
-                                <label class="role-label" for="role_staff">
-                                    <i class="bi bi-clipboard-data"></i>
-                                    <span>Staff</span>
-                                </label>
-                            </div>
-                            <div>
-                                <input type="radio" class="role-option" name="role" id="role_player" value="player">
-                                <label class="role-label" for="role_player">
-                                    <i class="bi bi-person-fill"></i>
-                                    <span>Joueur</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Email -->
                     <div>
@@ -441,13 +396,6 @@
                     <div id="passwordGroup">
                         <label for="password" class="form-label">Mot de passe</label>
                         {{ form.password(class="form-control", placeholder="••••••••") }}
-                    </div>
-
-                    <!-- Aide joueurs -->
-                    <div class="player-help d-none" id="playerHelp">
-                        <i class="bi bi-info-circle me-1"></i>
-                        <strong style="color:#93c5fd;">Joueurs :</strong> Utilisez <code>prenom.nom@email.com</code>
-                        <br><small style="color:rgba(147,197,253,0.6);">Exemple : youssef.elamrani@sporttracker.com</small>
                     </div>
 
                     <!-- Se souvenir -->
@@ -466,23 +414,6 @@
                         <a href="{{ url_for('auth.register') }}">Créer un compte staff</a>
                     </p>
                 </form>
-
-                <!-- Liste joueurs -->
-                {% if players %}
-                <div class="mt-3 d-none" id="playersList">
-                    <hr>
-                    <label class="section-label">Joueurs disponibles (cliquez pour remplir)</label>
-                    <div class="players-dropdown mt-2">
-                        {% for player in players[:10] %}
-                        <a href="#" class="player-item text-decoration-none"
-                           data-email="{{ player.first_name|lower }}.{{ player.last_name|lower }}@sporttracker.com">
-                            {{ player.full_name }}
-                            <small>({{ player.team.name if player.team else 'Sans équipe' }})</small>
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
             </div>
         </div>
 
@@ -490,35 +421,5 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const roleStaff  = document.getElementById('role_staff');
-        const rolePlayer = document.getElementById('role_player');
-        const passwordGroup = document.getElementById('passwordGroup');
-        const playerHelp    = document.getElementById('playerHelp');
-        const playersList   = document.getElementById('playersList');
-        const emailInput    = document.querySelector('input[name="email"]');
-
-        function updateForm() {
-            if (rolePlayer.checked) {
-                passwordGroup.classList.add('d-none');
-                playerHelp.classList.remove('d-none');
-                if (playersList) playersList.classList.remove('d-none');
-            } else {
-                passwordGroup.classList.remove('d-none');
-                playerHelp.classList.add('d-none');
-                if (playersList) playersList.classList.add('d-none');
-            }
-        }
-
-        roleStaff.addEventListener('change', updateForm);
-        rolePlayer.addEventListener('change', updateForm);
-
-        document.querySelectorAll('.player-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                emailInput.value = this.dataset.email;
-            });
-        });
-    </script>
 </body>
 </html>

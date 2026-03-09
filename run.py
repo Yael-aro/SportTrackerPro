@@ -104,6 +104,33 @@ def init_db():
     
     db.session.commit()
     
+    # Créer des comptes utilisateurs pour les joueurs
+    print("👥 Créaation des comptes joueurs...")
+    for first, last, dob, pos, team_id in players_data:
+        player = Player.query.filter_by(
+            first_name=first,
+            last_name=last
+        ).first()
+        
+        if player:
+            # Créer un compte utilisateur pour le joueur
+            email = f"{first.lower()}.{last.lower()}@sporttracker.com"
+            
+            # Vérifier si le compte existe déjà
+            existing_user = User.query.filter_by(email=email).first()
+            if not existing_user:
+                user = User(
+                    email=email,
+                    first_name=first,
+                    last_name=last,
+                    role='player',
+                    player_id=player.id
+                )
+                user.set_password('player123')  # Mot de passe par défaut
+                db.session.add(user)
+    
+    db.session.commit()
+    
     # Créer quelques séances
     today = date.today()
     sessions_data = [
@@ -131,7 +158,9 @@ def init_db():
     print("\n📧 Comptes de test :")
     print("   Admin: admin@sporttracker.com / admin123")
     print("   Coach: coach@sporttracker.com / coach123")
-    print("   Joueur: youssef.elamrani@sporttracker.com (sans mot de passe)")
+    print("\n🏃 Comptes joueurs (format: prenom.nom@sporttracker.com / player123):")
+    for first, last, dob, pos, team_id in players_data:
+        print(f"   - {first.lower()}.{last.lower()}@sporttracker.com")
 
 
 @app.cli.command()

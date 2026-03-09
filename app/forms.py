@@ -26,17 +26,9 @@ class LoginForm(FlaskForm):
         Email(message='Email invalide')
     ])
     
-    password = PasswordField('Mot de passe', validators=[Optional()])
-    
-    role = SelectField('Je suis', choices=[
-        ('coach', '🏋️ Entraîneur'),
-        ('preparateur', '💪 Préparateur Physique'),
-        ('medical', '🏥 Staff Médical'),
-        ('analyst', '📊 Analyste'),
-        ('admin', '⚙️ Administrateur'),
-        ('player', '⚽ Joueur'),
-        ('dirigeant', '👔 Dirigeant')
-    ], default='coach')
+    password = PasswordField('Mot de passe', validators=[
+        DataRequired(message='Le mot de passe est obligatoire')
+    ])
     
     remember = BooleanField('Se souvenir de moi')
     submit = SubmitField('Se connecter')

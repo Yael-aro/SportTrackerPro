@@ -1,0 +1,196 @@
+{% extends "shared/base.html" %}
+
+{% block title %}Documentation - SportTracker Pro{% endblock %}
+
+{% block content %}
+<style>
+    .docs-container {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: 2rem;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    .docs-sidebar {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+    }
+    .docs-sidebar h4 {
+        color: #34d27b;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+    .docs-sidebar ul {
+        list-style: none;
+        padding: 0;
+    }
+    .docs-sidebar li {
+        margin-bottom: 0.5rem;
+    }
+    .docs-sidebar a {
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: block;
+        padding: 0.5rem;
+        border-radius: 6px;
+        transition: all 0.3s;
+    }
+    .docs-sidebar a:hover {
+        color: #34d27b;
+        background: rgba(52,210,123,0.1);
+    }
+    .docs-content h2 {
+        font-size: 1.8rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        color: #34d27b;
+    }
+    .docs-section {
+        margin-bottom: 3rem;
+    }
+    .doc-code {
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(52,210,123,0.2);
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-x: auto;
+        font-family: 'Monaco', monospace;
+        font-size: 0.85rem;
+    }
+    @media (max-width: 768px) {
+        .docs-container {
+            grid-template-columns: 1fr;
+        }
+        .docs-sidebar {
+            position: static;
+        }
+    }
+</style>
+
+<section style="padding: 3rem 2rem; background: linear-gradient(135deg, rgba(52,210,123,0.1) 0%, rgba(26,106,255,0.05) 100%); border-bottom: 1px solid rgba(52,210,123,0.15); text-align: center;">
+    <h1 style="font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem;">Documentation</h1>
+    <p style="color: rgba(255,255,255,0.7);">Guide complet d'utilisation et de développement</p>
+</section>
+
+<div class="docs-container">
+    <div class="docs-sidebar">
+        <h4>Navigation</h4>
+        <ul>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#roles">Rôles & Permissions</a></li>
+            <li><a href="#modules">Modules</a></li>
+            <li><a href="#api">API REST</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul>
+    </div>
+
+    <div class="docs-content">
+        <div class="docs-section" id="intro">
+            <h2>Introduction</h2>
+            <p style="color: rgba(255,255,255,0.7); line-height: 1.8;">
+                SportTracker Pro est une plateforme complète de gestion de performances sportives. 
+                Elle offre des outils avancés pour le suivi GPS, la gestion médicale, et l'analyse des données d'entraînement.
+            </p>
+        </div>
+
+        <div class="docs-section" id="installation">
+            <h2>Installation</h2>
+            <p style="color: rgba(255,255,255,0.7); margin-bottom: 1rem;">Suivez ces étapes pour installer SportTracker Pro:</p>
+            <div class="doc-code" style="color: #34d27b;margin-bottom: 1rem;">
+# Cloner le projet<br>
+git clone https://github.com/your-org/sporttrackerpro.git<br>
+cd sporttrackerpro<br>
+<br>
+# Créer l'environnement virtuel<br>
+python -m venv .venv<br>
+source .venv/bin/activate<br>
+<br>
+# Installer les dépendances<br>
+pip install -r requirements.txt<br>
+<br>
+# Lancer le serveur<br>
+python run.py
+            </div>
+        </div>
+
+        <div class="docs-section" id="roles">
+            <h2>Rôles & Permissions</h2>
+            <p style="color: rgba(255,255,255,0.7); margin-bottom: 1rem;">SportTracker Pro supporte 8 rôles différents:</p>
+            <ul style="color: rgba(255,255,255,0.7); line-height: 1.8;">
+                <li><strong style="color: #34d27b;">Admin:</strong> Accès complet à toutes les fonctionnalités</li>
+                <li><strong style="color: #34d27b;">Coach:</strong> Gestion des équipes et des séances</li>
+                <li><strong style="color: #34d27b;">Préparateur:</strong> Suivi de la préparation physique</li>
+                <li><strong style="color: #34d27b;">Médecin:</strong> Gestion des blessures et du wellness</li>
+                <li><strong style="color: #34d27b;">Analyste:</strong> Analyse des données et rapports</li>
+                <li><strong style="color: #34d27b;">Joueur:</strong> Accès à son profil personnel</li>
+                <li><strong style="color: #34d27b;">Assistant:</strong> Support aux coachs</li>
+                <li><strong style="color: #34d27b;">Dirigeant:</strong> Vue managériale des équipes</li>
+            </ul>
+        </div>
+
+        <div class="docs-section" id="modules">
+            <h2>Modules Disponibles</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <div style="background: rgba(52,210,123,0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid #34d27b;">
+                    <h4 style="color: #34d27b; margin-bottom: 0.5rem;">📊 Dashboard</h4>
+                    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">Visualisations personnalisées</p>
+                </div>
+                <div style="background: rgba(52,210,123,0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid #34d27b;">
+                    <h4 style="color: #34d27b; margin-bottom: 0.5rem;">👥 Joueurs</h4>
+                    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">Gestion des profils</p>
+                </div>
+                <div style="background: rgba(52,210,123,0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid #34d27b;">
+                    <h4 style="color: #34d27b; margin-bottom: 0.5rem;">🏋️ Équipes</h4>
+                    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">Organisation des équipes</p>
+                </div>
+                <div style="background: rgba(52,210,123,0.1); padding: 1rem; border-radius: 8px; border-left: 3px solid #34d27b;">
+                    <h4 style="color: #34d27b; margin-bottom: 0.5rem;">📍 GPS</h4>
+                    <p style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">Suivi et analyse</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="docs-section" id="api">
+            <h2>API REST</h2>
+            <p style="color: rgba(255,255,255,0.7); margin-bottom: 1rem;">SportTracker Pro expose une API REST complète:</p>
+            <div class="doc-code" style="color: #34d27b;margin-bottom: 1rem;">
+GET /api/players - Liste tous les joueurs<br>
+GET /api/players/{id} - Détails d'un joueur<br>
+POST /api/players - Créer un joueur<br>
+PUT /api/players/{id} - Mettre à jour<br>
+DELETE /api/players/{id} - Supprimer<br>
+<br>
+GET /api/teams - Liste les équipes<br>
+GET /api/sessions - Liste les séances<br>
+GET /api/gps-data - Données GPS
+            </div>
+        </div>
+
+        <div class="docs-section" id="faq">
+            <h2>Questions Fréquentes</h2>
+            <div style="background: rgba(255,255,255,0.05); border-left: 3px solid #34d27b; padding: 1rem; margin-bottom: 1rem; border-radius: 6px;">
+                <h4 style="color: #34d27b; margin-bottom: 0.5rem;">Quels formats de données GPS sont supportés?</h4>
+                <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Nous supportons les fichiers CSV, JSON et les uploads directs d'appareils GPS.</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border-left: 3px solid #34d27b; padding: 1rem; margin-bottom: 1rem; border-radius: 6px;">
+                <h4 style="color: #34d27b; margin-bottom: 0.5rem;">Comment seguriser mes données?</h4>
+                <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Toutes les données sont chiffrées et stockées sur des serveurs sécurisés.</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); border-left: 3px solid #34d27b; padding: 1rem; border-radius: 6px;">
+                <h4 style="color: #34d27b; margin-bottom: 0.5rem;">Ya-t-il une limite de joueurs?</h4>
+                <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Non, la plateforme scale automatiquement selon vos besoins.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "shared/base.html" %}
+
+{% block title %}Contact - SportTracker Pro{% endblock %}
+
+{% block content %}
+<style>
+    .contact-hero {
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, rgba(52,210,123,0.1) 0%, rgba(26,106,255,0.05) 100%);
+        border-bottom: 1px solid rgba(52,210,123,0.15);
+        text-align: center;
+    }
+    .contact-content {
+        padding: 4rem 2rem;
+    }
+    .contact-method {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    .contact-method:hover {
+        border-color: #34d27b;
+        background: rgba(52,210,123,0.05);
+    }
+    .contact-icon {
+        font-size: 2.5rem;
+        color: #34d27b;
+        margin-bottom: 1rem;
+    }
+    .contact-form {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        padding: 2.5rem;
+    }
+    .form-control {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: white;
+        padding: 0.8rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+    .form-control:focus {
+        background: rgba(255,255,255,0.12);
+        border-color: #34d27b;
+        color: white;
+        box-shadow: 0 0 0 0.2rem rgba(52,210,123,0.25);
+    }
+    .form-control::placeholder {
+        color: rgba(255,255,255,0.5);
+    }
+</style>
+
+<section class="contact-hero">
+    <div class="container-lg">
+        <h1 style="font-size: 2.5rem; font-weight: 900; margin-bottom: 1rem;">Nous Contacter</h1>
+        <p style="font-size: 1.1rem; color: rgba(255,255,255,0.7); max-width: 600px; margin-left: auto; margin-right: auto;">
+            Avez-vous des questions ? Notre équipe est disponible pour vous aider et répondre à toutes vos demandes.
+        </p>
+    </div>
+</section>
+
+<section class="contact-content">
+    <div class="container-lg">
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="contact-method">
+                    <div class="contact-icon"><i class="bi bi-envelope"></i></div>
+                    <h4 style="color: #34d27b;">Email</h4>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 0;">
+                        <a href="mailto:support@sporttrackerpro.com" style="color: #34d27b; text-decoration: none;">
+                            support@sporttrackerpro.com
+                        </a>
+                    </p>
+                    <small style="color: rgba(255,255,255,0.5);">Réponse sous 24h</small>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="contact-method">
+                    <div class="contact-icon"><i class="bi bi-telephone"></i></div>
+                    <h4 style="color: #34d27b;">Téléphone</h4>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 0;">
+                        <a href="tel:+212999999999" style="color: #34d27b; text-decoration: none;">
+                            +212 (0) 999 999 999
+                        </a>
+                    </p>
+                    <small style="color: rgba(255,255,255,0.5);">Lun-Ven 9h-18h</small>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="contact-method">
+                    <div class="contact-icon"><i class="bi bi-geo-alt"></i></div>
+                    <h4 style="color: #34d27b;">Adresse</h4>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 0;">
+                        Université Hassan 1er<br>
+                        Benslimane, MAROC
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 2rem; text-align: center;">Envoyez-nous un Message</h2>
+                <form class="contact-form" method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" placeholder="Votre nom" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="email" class="form-control" placeholder="Votre email" required>
+                        </div>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Sujet" required>
+                    <textarea class="form-control" rows="6" placeholder="Votre message..." required style="resize: none;"></textarea>
+                    <button type="submit" class="btn btn-primary-custom" style="background: linear-gradient(135deg, #34d27b 0%, #0ea87e 100%); border: none; color: #000; font-weight: 600; padding: 0.9rem 2rem; border-radius: 8px; width: 100%;">
+                        <i class="bi bi-send"></i> Envoyer le Message
+                    </button>
+                </form>
+                <p style="text-align: center; color: rgba(255,255,255,0.5); margin-top: 1.5rem; font-size: 0.9rem;">
+                    Nous nous engagement à répondre à tous les messages sous 24 heures.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

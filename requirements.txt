@@ -27,6 +27,11 @@ joblib>=1.3.0
 python-dotenv>=1.0.0
 Werkzeug>=3.0.0
 
+# Notifications & Export
+Flask-Mail>=0.9.1
+reportlab>=4.0.0  # PDF generation
+PyPDF2>=3.0.0
+
 # Production (optionnel)
 gunicorn>=21.0.0
 psycopg2-binary>=2.9.0  # PostgreSQL

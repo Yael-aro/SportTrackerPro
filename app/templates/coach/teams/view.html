@@ -44,57 +44,252 @@
 </div>
 
 <!-- Liste des joueurs -->
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0"><i class="bi bi-people me-2"></i>Joueurs de l'équipe</h6>
-        <a href="{{ url_for('players.add_player') }}" class="btn btn-sm btn-primary">
-            <i class="bi bi-plus me-1"></i>Ajouter
-        </a>
-    </div>
-    <div class="card-body p-0">
-        {% if players %}
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Joueur</th>
-                        <th>Position</th>
-                        <th>Âge</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for player in players %}
-                    <tr>
-                        <td>
-                            <strong>{{ player.full_name }}</strong>
-                            {% if player.jersey_number %}
-                            <span class="badge bg-secondary">#{{ player.jersey_number }}</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ player.position }}</td>
-                        <td>{{ player.age }} ans</td>
-                        <td>
-                            <span class="badge bg-{% if player.status == 'Disponible' %}success{% elif player.status == 'Blessé' %}danger{% else %}warning{% endif %}">
-                                {{ player.status }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="{{ url_for('players.view_player', id=player.id) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="text-center py-4 text-muted">
-            <p>Aucun joueur dans cette équipe</p>
-        </div>
-        {% endif %}
-    </div>
+<style>
+    .players-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+    }
+
+    .players-header h5 {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+
+    .players-header i {
+        margin-right: 0.5rem;
+        color: #34d27b;
+    }
+
+    .players-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .player-card {
+        background: linear-gradient(135deg, rgba(52, 210, 123, 0.08) 0%, rgba(0, 212, 255, 0.04) 100%);
+        border: 1px solid rgba(52, 210, 123, 0.2);
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .player-card:hover {
+        border-color: rgba(52, 210, 123, 0.4);
+        background: linear-gradient(135deg, rgba(52, 210, 123, 0.12) 0%, rgba(0, 212, 255, 0.08) 100%);
+        box-shadow: 0 8px 24px rgba(52, 210, 123, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .player-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .player-name {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .player-name h6 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    .player-jersey {
+        display: inline-block;
+        background: rgba(52, 210, 123, 0.2);
+        color: #34d27b;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        width: fit-content;
+    }
+
+    .player-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+    }
+
+    .info-value {
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 600;
+    }
+
+    .player-status {
+        border-top: 1px solid rgba(52, 210, 123, 0.15);
+        padding-top: 0.8rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-badge.available {
+        background: rgba(0, 200, 100, 0.15);
+        color: #34d27b;
+        border: 1px solid rgba(0, 200, 100, 0.3);
+    }
+
+    .status-badge.injured {
+        background: rgba(255, 100, 100, 0.15);
+        color: #ff6b6b;
+        border: 1px solid rgba(255, 100, 100, 0.3);
+    }
+
+    .status-badge.other {
+        background: rgba(255, 165, 0, 0.15);
+        color: #ffa500;
+        border: 1px solid rgba(255, 165, 0, 0.3);
+    }
+
+    .status-icon {
+        font-size: 1rem;
+    }
+
+    .view-btn {
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #34d27b 0%, #00d4ff 100%);
+        color: #0f1a2e;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-decoration: none;
+    }
+
+    .view-btn:hover {
+        box-shadow: 0 0 20px rgba(52, 210, 123, 0.4);
+        transform: translateY(-1px);
+        color: #0f1a2e;
+        text-decoration: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: rgba(52, 210, 123, 0.3);
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .players-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .players-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<div class="players-header">
+    <h5><i class="bi bi-people-fill"></i>Joueurs de l'équipe</h5>
+    <a href="{{ url_for('players.add_player') }}" class="btn btn-sm btn-primary">
+        <i class="bi bi-plus me-1"></i>Ajouter joueur
+    </a>
 </div>
+
+{% if players %}
+<div class="players-grid">
+    {% for player in players %}
+    <div class="player-card">
+        <div class="player-header">
+            <div class="player-name">
+                <h6>{{ player.full_name }}</h6>
+                {% if player.jersey_number %}
+                <span class="player-jersey">#{{ player.jersey_number }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="player-info">
+            <div class="info-item">
+                <span class="info-label">Position</span>
+                <span class="info-value">{{ player.position or '-' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Âge</span>
+                <span class="info-value">{{ player.age or '-' }} ans</span>
+            </div>
+        </div>
+
+        <div class="player-status">
+            <span class="status-badge {% if player.status == 'Disponible' %}available{% elif player.status == 'Blessé' %}injured{% else %}other{% endif %}">
+                <i class="bi bi-circle-fill status-icon"></i>
+                {{ player.status or 'Inconnu' }}
+            </span>
+            <a href="{{ url_for('players.view_player', id=player.id) }}" class="view-btn">
+                <i class="bi bi-arrow-right"></i>Voir
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <p>Aucun joueur dans cette équipe</p>
+    <a href="{{ url_for('players.add_player') }}" class="btn btn-sm btn-primary">
+        <i class="bi bi-plus me-1"></i>Ajouter le premier joueur
+    </a>
+</div>
+{% endif %}
 {% endblock %}

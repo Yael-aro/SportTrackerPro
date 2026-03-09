@@ -46,6 +46,17 @@ class Config:
     WELLNESS_WARNING = 15
     WELLNESS_DANGER = 10
     
+    # Configuration Email (Flask-Mail)
+    MAIL_SERVER = os.environ.get('MAIL_SERVER') or 'smtp.gmail.com'
+    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 587)
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', True)
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')  # email@gmail.com
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')  # app password
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or 'noreply@sporttrackerpro.com'
+    
+    # Pour développement: mode offline email (affiche logs)
+    TESTING_MAIL = os.environ.get('TESTING_MAIL', False)
+    
     @staticmethod
     def init_app(app):
         pass

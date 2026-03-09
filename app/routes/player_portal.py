@@ -51,6 +51,18 @@ def profile():
         total_attendance = TrainingResult.query.filter_by(player_id=player.id, status='Completed').count()
         accuracy = round((total_attendance / total_sessions) * 100)
     
+    # Derniers enregistrements wellness et injuries
+    last_wellness = WellnessRecord.query.filter_by(player_id=player.id).order_by(
+        WellnessRecord.created_at.desc()
+    ).first()
+    
+    from app.models import Injury
+    recent_injuries = Injury.query.filter_by(player_id=player.id).order_by(
+        Injury.created_at.desc()
+    ).limit(5).all()
+    
+    last_injury = recent_injuries[0] if recent_injuries else None
+    
     stats = {
         'total_sessions': total_sessions,
         'total_distance': round(total_distance / 1000, 1) if total_distance else 0,  # en km
@@ -59,7 +71,7 @@ def profile():
         'accuracy': accuracy
     }
     
-    return render_template('player/profile.html', player=player, stats=stats)
+    return render_template('player/profile.html', player=player, stats=stats, last_wellness=last_wellness, last_injury=last_injury, recent_injuries=recent_injuries)
 
 
 @player_portal_bp.route('/dashboard')
