@@ -21,7 +21,7 @@ Cela crée automatiquement :
 
 ### 3. **Lancer l'application**
 ```bash
-python run.py
+python3 run.py
 ```
 
 L'app démarre sur : **http://localhost:8080**
