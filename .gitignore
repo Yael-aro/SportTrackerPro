@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual env
+.venv/
+venv/
+env/
+
+# Tests / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Base de données / uploads locaux
+instance/*.db
+instance/*.sqlite
+uploads/players/*
+uploads/gps/*
+!uploads/.gitkeep
+
+# Secrets
+.env
+.env.local
+*.pem
