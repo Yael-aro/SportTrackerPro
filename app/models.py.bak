@@ -56,10 +56,6 @@ class User(db.Model):
 # Reset password (Etape 2)
     reset_token = db.Column(db.String(100), nullable=True, index=True)
     reset_token_expires = db.Column(db.DateTime, nullable=True)    
-
-    # 2FA TOTP (Etape 2)
-    totp_secret = db.Column(db.String(32), nullable=True)
-    totp_enabled = db.Column(db.Boolean, default=False)
     # Relations
     player = db.relationship('Player', backref='user_account', foreign_keys=[player_id])
     

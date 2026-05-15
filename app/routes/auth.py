@@ -5,6 +5,11 @@ SportTracker Pro - Routes d'Authentification
 
 from datetime import datetime, timedelta
 import secrets
+import io
+import base64
+
+import pyotp
+import qrcode
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, current_app
 from flask_login import login_user, logout_user, login_required, current_user
@@ -14,9 +19,13 @@ from app.forms import LoginForm, RegisterForm, ForgotPasswordForm, ResetPassword
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
+# =============================================================================
+# LOGIN / LOGOUT / REGISTER
+# =============================================================================
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    """Page de connexion unifiée"""
+    """Page de connexion unifiée (avec gestion 2FA)"""
     if current_user.is_authenticated:
         return redirect_by_role(current_user.role)
 
@@ -26,18 +35,23 @@ def login():
         email = form.email.data.lower()
         password = form.password.data
 
-        # Rechercher l'utilisateur par email
         user = User.query.filter_by(email=email).first()
 
         if user and user.check_password(password):
-            if user.is_active:
-                login_user(user)
-                session['user_role'] = user.role
-
-                flash(f'Bienvenue {user.first_name} !', 'success')
-                return redirect_by_role(user.role)
-            else:
+            if not user.is_active:
                 flash('Votre compte est désactivé.', 'danger')
+                return render_template('auth/login.html', form=form)
+
+            # Si 2FA active : rediriger vers la page de verification 2FA
+            if user.totp_enabled:
+                session['pre_2fa_user_id'] = user.id
+                return redirect(url_for('auth.verify_2fa'))
+
+            # Sinon, connexion directe
+            login_user(user)
+            session['user_role'] = user.role
+            flash(f'Bienvenue {user.first_name} !', 'success')
+            return redirect_by_role(user.role)
         else:
             flash('Email ou mot de passe incorrect.', 'danger')
 
@@ -53,7 +67,6 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        # Vérifier si l'email existe déjà
         if User.query.filter_by(email=form.email.data.lower()).first():
             flash('Cet email est déjà utilisé.', 'danger')
             return render_template('auth/register.html', form=form)
@@ -101,26 +114,21 @@ def profile():
         'accuracy': 100
     }
 
-    # Si l'utilisateur est un joueur
     if current_user.player_id:
         player = Player.query.get(current_user.player_id)
 
         if player:
-            # Calculer les statistiques
             total_sessions = TrainingResult.query.filter_by(player_id=player.id).count()
             total_distance = db.session.query(db.func.sum(GPSData.total_distance)).filter_by(
                 player_id=player.id
             ).scalar() or 0
-
             best_distance = db.session.query(db.func.max(GPSData.total_distance)).filter_by(
                 player_id=player.id
             ).scalar() or 0
-
             best_speed = db.session.query(db.func.max(GPSData.max_speed)).filter_by(
                 player_id=player.id
             ).scalar() or 0
 
-            # Calculer la précision (assiduité)
             accuracy = 100
             if total_sessions > 0:
                 total_attendance = TrainingResult.query.filter_by(player_id=player.id, status='Completed').count()
@@ -134,9 +142,7 @@ def profile():
                 'accuracy': accuracy
             }
     else:
-        # Pour les staff, créer un objet Player minimal avec les infos du User
         player = current_user
-        # Ajouter les attributs manquants pour compatibilité avec le template
         if not hasattr(player, 'date_of_birth'):
             player.date_of_birth = None
         if not hasattr(player, 'position'):
@@ -183,17 +189,12 @@ def forgot_password():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data.lower()).first()
         if user:
-            # Generer un token securise et le stocker
             token = secrets.token_urlsafe(32)
             user.reset_token = token
             user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
             db.session.commit()
 
-            # Construire le lien de reset
             reset_url = url_for('auth.reset_password', token=token, _external=True)
-
-            # En mode dev : afficher le lien dans la console
-            # En production : envoyer par e-mail (Flask-Mail)
             current_app.logger.info(f"[RESET-PASSWORD] Lien pour {user.email} : {reset_url}")
             print(f"\n=== LIEN DE REINITIALISATION ===\n{reset_url}\n=================================\n")
 
@@ -204,7 +205,6 @@ def forgot_password():
                 'success'
             )
         else:
-            # Anti-enumeration : meme message si l'email existe ou non
             flash(
                 "Si cet email existe, un lien de reinitialisation a ete envoye.",
                 'info'
@@ -220,7 +220,6 @@ def reset_password(token):
     if current_user.is_authenticated:
         return redirect_by_role(current_user.role)
 
-    # Verifier le token
     user = User.query.filter_by(reset_token=token).first()
     if not user or not user.reset_token_expires or user.reset_token_expires < datetime.utcnow():
         flash("Lien invalide ou expire. Veuillez refaire une demande.", 'danger')
@@ -236,6 +235,94 @@ def reset_password(token):
         return redirect(url_for('auth.login'))
 
     return render_template('auth/reset_password.html', form=form, token=token)
+
+
+# =============================================================================
+# AUTHENTIFICATION A 2 FACTEURS (2FA / TOTP) - Etape 2 Securite
+# =============================================================================
+
+@auth_bp.route('/setup-2fa', methods=['GET', 'POST'])
+@login_required
+def setup_2fa():
+    """Activer la 2FA : affichage du QR code et verification d'un premier code."""
+    if current_user.totp_enabled:
+        flash("La 2FA est deja activee sur votre compte.", 'info')
+        return redirect(url_for('auth.profile'))
+
+    # Generer un secret si pas encore present
+    if not current_user.totp_secret:
+        current_user.totp_secret = pyotp.random_base32()
+        db.session.commit()
+
+    # URI standard otpauth :// pour Google Authenticator
+    totp = pyotp.TOTP(current_user.totp_secret)
+    provisioning_uri = totp.provisioning_uri(
+        name=current_user.email,
+        issuer_name='SportTracker Pro'
+    )
+
+    # Generer le QR code en base64 pour l'embarquer dans le HTML
+    img = qrcode.make(provisioning_uri)
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    qr_base64 = base64.b64encode(buf.getvalue()).decode()
+
+    # Verification du code saisi par l'utilisateur
+    if request.method == 'POST':
+        code = request.form.get('code', '').strip()
+        if totp.verify(code):
+            current_user.totp_enabled = True
+            db.session.commit()
+            flash("Authentification a 2 facteurs activee avec succes !", 'success')
+            return redirect(url_for('auth.profile'))
+        else:
+            flash("Code incorrect. Verifiez l'heure de votre telephone et reessayez.", 'danger')
+
+    return render_template(
+        'auth/setup_2fa.html',
+        qr_base64=qr_base64,
+        secret=current_user.totp_secret
+    )
+
+
+@auth_bp.route('/disable-2fa', methods=['POST'])
+@login_required
+def disable_2fa():
+    """Desactiver la 2FA."""
+    current_user.totp_enabled = False
+    current_user.totp_secret = None
+    db.session.commit()
+    flash("Authentification a 2 facteurs desactivee.", 'info')
+    return redirect(url_for('auth.profile'))
+
+
+@auth_bp.route('/verify-2fa', methods=['GET', 'POST'])
+def verify_2fa():
+    """Etape de verification 2FA juste apres le login mot de passe."""
+    # On doit avoir un user_id en attente dans la session
+    user_id = session.get('pre_2fa_user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+
+    user = User.query.get(user_id)
+    if not user or not user.totp_enabled:
+        session.pop('pre_2fa_user_id', None)
+        return redirect(url_for('auth.login'))
+
+    if request.method == 'POST':
+        code = request.form.get('code', '').strip()
+        totp = pyotp.TOTP(user.totp_secret)
+        if totp.verify(code):
+            # Code valide : on connecte vraiment l'utilisateur
+            session.pop('pre_2fa_user_id', None)
+            login_user(user)
+            session['user_role'] = user.role
+            flash(f'Bienvenue {user.first_name} !', 'success')
+            return redirect_by_role(user.role)
+        else:
+            flash("Code incorrect. Reessayez.", 'danger')
+
+    return render_template('auth/verify_2fa.html', email=user.email)
 
 
 # =============================================================================
