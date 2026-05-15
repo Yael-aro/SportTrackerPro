@@ -53,6 +53,9 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime)
     
+# Reset password (Etape 2)
+    reset_token = db.Column(db.String(100), nullable=True, index=True)
+    reset_token_expires = db.Column(db.DateTime, nullable=True)    
     # Relations
     player = db.relationship('Player', backref='user_account', foreign_keys=[player_id])
     

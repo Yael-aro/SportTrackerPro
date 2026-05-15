@@ -463,3 +463,29 @@ class FilterForm(FlaskForm):
     date_from = DateField('Du', validators=[Optional()])
     date_to = DateField('Au', validators=[Optional()])
     status = SelectField('Statut', validators=[Optional()])
+
+
+# =============================================================================
+# RESET PASSWORD (Etape 2 - Securite)
+# =============================================================================
+
+class ForgotPasswordForm(FlaskForm):
+    """Demande de reinitialisation du mot de passe."""
+    email = EmailField('Email', validators=[
+        DataRequired(message='L\'email est obligatoire'),
+        Email(message='Email invalide')
+    ])
+    submit = SubmitField('Envoyer le lien de reinitialisation')
+
+
+class ResetPasswordForm(FlaskForm):
+    """Definition d'un nouveau mot de passe."""
+    password = PasswordField('Nouveau mot de passe', validators=[
+        DataRequired(message='Le mot de passe est obligatoire'),
+        Length(min=8, message='Le mot de passe doit faire au moins 8 caracteres')
+    ])
+    password2 = PasswordField('Confirmer le mot de passe', validators=[
+        DataRequired(message='La confirmation est obligatoire'),
+        EqualTo('password', message='Les mots de passe ne correspondent pas')
+    ])
+    submit = SubmitField('Reinitialiser')

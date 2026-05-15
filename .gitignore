@@ -29,7 +29,14 @@ uploads/players/*
 uploads/gps/*
 !uploads/.gitkeep
 
+# Node
+package-lock.json
+node_modules/
+
 # Secrets
 .env
 .env.local
 *.pem
+
+# Backups
+*.backup
