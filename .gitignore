@@ -40,3 +40,5 @@ node_modules/
 
 # Backups
 *.backup
+app/models.py.bak
+*.bak
