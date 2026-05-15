@@ -13,7 +13,7 @@ import qrcode
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from app.models import db, User, Player
+from app.models import db, User, Player, log_action
 from app.forms import LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -25,7 +25,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    """Page de connexion unifiée (avec gestion 2FA)"""
+    """Page de connexion unifiée (avec gestion 2FA et journal d'audit)"""
     if current_user.is_authenticated:
         return redirect_by_role(current_user.role)
 
@@ -39,20 +39,29 @@ def login():
 
         if user and user.check_password(password):
             if not user.is_active:
+                log_action('login_blocked_inactive', target_type='user',
+                           target_id=user.id, target_name=user.email, user=user)
                 flash('Votre compte est désactivé.', 'danger')
                 return render_template('auth/login.html', form=form)
 
-            # Si 2FA active : rediriger vers la page de verification 2FA
+            # Si 2FA active : rediriger vers la verification 2FA
             if user.totp_enabled:
                 session['pre_2fa_user_id'] = user.id
+                log_action('login_2fa_required', target_type='user',
+                           target_id=user.id, target_name=user.email, user=user)
                 return redirect(url_for('auth.verify_2fa'))
 
-            # Sinon, connexion directe
+            # Sinon connexion directe
             login_user(user)
             session['user_role'] = user.role
+            log_action('login_success', target_type='user',
+                       target_id=user.id, target_name=user.email, user=user)
             flash(f'Bienvenue {user.first_name} !', 'success')
             return redirect_by_role(user.role)
         else:
+            # Echec : on log meme si user inexistant (sans crash)
+            log_action('login_failed', target_type='user',
+                       target_name=email, details=f"email tente: {email}")
             flash('Email ou mot de passe incorrect.', 'danger')
 
     return render_template('auth/login.html', form=form)
@@ -83,6 +92,8 @@ def register():
         db.session.add(user)
         db.session.commit()
 
+        log_action('user_registered', target_type='user',
+                   target_id=user.id, target_name=user.email, user=user)
         flash('Compte créé avec succès ! Vous pouvez maintenant vous connecter.', 'success')
         return redirect(url_for('auth.login'))
 
@@ -93,6 +104,8 @@ def register():
 @login_required
 def logout():
     """Déconnexion"""
+    log_action('logout', target_type='user',
+               target_id=current_user.id, target_name=current_user.email)
     logout_user()
     session.clear()
     flash('Vous avez été déconnecté.', 'info')
@@ -198,6 +211,9 @@ def forgot_password():
             current_app.logger.info(f"[RESET-PASSWORD] Lien pour {user.email} : {reset_url}")
             print(f"\n=== LIEN DE REINITIALISATION ===\n{reset_url}\n=================================\n")
 
+            log_action('password_reset_requested', target_type='user',
+                       target_id=user.id, target_name=user.email, user=user)
+
             flash(
                 "Un lien de reinitialisation a ete genere. "
                 "En developpement, consultez la console du serveur. "
@@ -205,6 +221,8 @@ def forgot_password():
                 'success'
             )
         else:
+            log_action('password_reset_requested_unknown_email',
+                       target_name=form.email.data.lower())
             flash(
                 "Si cet email existe, un lien de reinitialisation a ete envoye.",
                 'info'
@@ -222,6 +240,7 @@ def reset_password(token):
 
     user = User.query.filter_by(reset_token=token).first()
     if not user or not user.reset_token_expires or user.reset_token_expires < datetime.utcnow():
+        log_action('password_reset_invalid_token', details=f"token={token[:8]}...")
         flash("Lien invalide ou expire. Veuillez refaire une demande.", 'danger')
         return redirect(url_for('auth.forgot_password'))
 
@@ -231,6 +250,8 @@ def reset_password(token):
         user.reset_token = None
         user.reset_token_expires = None
         db.session.commit()
+        log_action('password_reset_success', target_type='user',
+                   target_id=user.id, target_name=user.email, user=user)
         flash("Mot de passe reinitialise avec succes. Vous pouvez vous connecter.", 'success')
         return redirect(url_for('auth.login'))
 
@@ -238,44 +259,44 @@ def reset_password(token):
 
 
 # =============================================================================
-# AUTHENTIFICATION A 2 FACTEURS (2FA / TOTP) - Etape 2 Securite
+# 2FA / TOTP (Etape 2 - Securite)
 # =============================================================================
 
 @auth_bp.route('/setup-2fa', methods=['GET', 'POST'])
 @login_required
 def setup_2fa():
-    """Activer la 2FA : affichage du QR code et verification d'un premier code."""
+    """Activer la 2FA : QR code + verification d'un premier code."""
     if current_user.totp_enabled:
         flash("La 2FA est deja activee sur votre compte.", 'info')
         return redirect(url_for('auth.profile'))
 
-    # Generer un secret si pas encore present
     if not current_user.totp_secret:
         current_user.totp_secret = pyotp.random_base32()
         db.session.commit()
 
-    # URI standard otpauth :// pour Google Authenticator
     totp = pyotp.TOTP(current_user.totp_secret)
     provisioning_uri = totp.provisioning_uri(
         name=current_user.email,
         issuer_name='SportTracker Pro'
     )
 
-    # Generer le QR code en base64 pour l'embarquer dans le HTML
     img = qrcode.make(provisioning_uri)
     buf = io.BytesIO()
     img.save(buf, format='PNG')
     qr_base64 = base64.b64encode(buf.getvalue()).decode()
 
-    # Verification du code saisi par l'utilisateur
     if request.method == 'POST':
         code = request.form.get('code', '').strip()
         if totp.verify(code):
             current_user.totp_enabled = True
             db.session.commit()
+            log_action('2fa_enabled', target_type='user',
+                       target_id=current_user.id, target_name=current_user.email)
             flash("Authentification a 2 facteurs activee avec succes !", 'success')
             return redirect(url_for('auth.profile'))
         else:
+            log_action('2fa_setup_wrong_code', target_type='user',
+                       target_id=current_user.id, target_name=current_user.email)
             flash("Code incorrect. Verifiez l'heure de votre telephone et reessayez.", 'danger')
 
     return render_template(
@@ -289,6 +310,8 @@ def setup_2fa():
 @login_required
 def disable_2fa():
     """Desactiver la 2FA."""
+    log_action('2fa_disabled', target_type='user',
+               target_id=current_user.id, target_name=current_user.email)
     current_user.totp_enabled = False
     current_user.totp_secret = None
     db.session.commit()
@@ -298,8 +321,7 @@ def disable_2fa():
 
 @auth_bp.route('/verify-2fa', methods=['GET', 'POST'])
 def verify_2fa():
-    """Etape de verification 2FA juste apres le login mot de passe."""
-    # On doit avoir un user_id en attente dans la session
+    """Verification 2FA juste apres le login mot de passe."""
     user_id = session.get('pre_2fa_user_id')
     if not user_id:
         return redirect(url_for('auth.login'))
@@ -313,13 +335,16 @@ def verify_2fa():
         code = request.form.get('code', '').strip()
         totp = pyotp.TOTP(user.totp_secret)
         if totp.verify(code):
-            # Code valide : on connecte vraiment l'utilisateur
             session.pop('pre_2fa_user_id', None)
             login_user(user)
             session['user_role'] = user.role
+            log_action('login_success_with_2fa', target_type='user',
+                       target_id=user.id, target_name=user.email, user=user)
             flash(f'Bienvenue {user.first_name} !', 'success')
             return redirect_by_role(user.role)
         else:
+            log_action('2fa_verify_failed', target_type='user',
+                       target_id=user.id, target_name=user.email, user=user)
             flash("Code incorrect. Reessayez.", 'danger')
 
     return render_template('auth/verify_2fa.html', email=user.email)

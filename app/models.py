@@ -801,3 +801,75 @@ class Recommendation(db.Model):
     
     def __repr__(self):
         return f"<Recommendation {self.rec_type} - Player:{self.player_id}>"
+
+
+# =============================================================================
+# MODELE AUDIT LOG (Etape 2 - Securite / Conformite RGPD)
+# =============================================================================
+
+class AuditLog(db.Model):
+    """
+    Journal d'audit : trace toutes les actions sensibles de la plateforme.
+    Permet la tracabilite en cas d'incident de securite ou de litige RGPD.
+    """
+    __tablename__ = 'audit_log'
+
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    # Qui a fait l'action
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
+    user_email = db.Column(db.String(120), nullable=True)  # Garde l'email meme si user supprime
+    user_role = db.Column(db.String(30), nullable=True)
+
+    # Quelle action
+    action = db.Column(db.String(50), nullable=False, index=True)
+    # Ex: 'login_success', 'login_failed', 'logout', 'player_created',
+    #     'player_deleted', 'team_updated', '2fa_enabled', 'password_reset', etc.
+
+    # Sur quoi
+    target_type = db.Column(db.String(50), nullable=True)  # 'player', 'team', 'session'...
+    target_id = db.Column(db.Integer, nullable=True)
+    target_name = db.Column(db.String(200), nullable=True)  # Nom lisible
+
+    # Details (JSON-like)
+    details = db.Column(db.Text, nullable=True)
+
+    # Contexte technique
+    ip_address = db.Column(db.String(45), nullable=True)  # IPv4 ou IPv6
+    user_agent = db.Column(db.String(255), nullable=True)
+
+    # Relation
+    user = db.relationship('User', foreign_keys=[user_id])
+
+    def __repr__(self):
+        return f"<AuditLog {self.action} by {self.user_email} at {self.timestamp}>"
+
+
+def log_action(action, target_type=None, target_id=None, target_name=None, details=None, user=None):
+    """
+    Helper pour enregistrer une action dans le journal d'audit.
+
+    Utilisation :
+        log_action('player_created', target_type='player', target_id=p.id, target_name=p.full_name)
+    """
+    from flask import request
+    from flask_login import current_user
+
+    actor = user or (current_user if current_user.is_authenticated else None)
+
+    entry = AuditLog(
+        user_id=actor.id if actor else None,
+        user_email=actor.email if actor else 'anonymous',
+        user_role=actor.role if actor else None,
+        action=action,
+        target_type=target_type,
+        target_id=target_id,
+        target_name=target_name,
+        details=details,
+        ip_address=request.remote_addr if request else None,
+        user_agent=request.headers.get('User-Agent', '')[:255] if request else None
+    )
+    db.session.add(entry)
+    db.session.commit()
+    return entry

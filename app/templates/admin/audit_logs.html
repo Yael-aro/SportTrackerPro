@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal d'audit - SportTracker Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2d3561 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #fff;
+            padding: 2rem 1rem;
+        }
+        .container-glass {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+        .icon-circle i {
+            font-size: 1.8rem;
+            color: white;
+        }
+        h1 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.75rem;
+        }
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .stat-card.primary .stat-value { color: #60a5fa; }
+        .stat-card.success .stat-value { color: #34d399; }
+        .stat-card.danger .stat-value { color: #f87171; }
+        .stat-card.warning .stat-value { color: #fbbf24; }
+        .stat-card.info .stat-value { color: #22d3ee; }
+        .stat-card.purple .stat-value { color: #a78bfa; }
+
+        .filters {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+        }
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            border-radius: 8px;
+        }
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #6366f1;
+            color: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        .form-select option {
+            background: #1a1f3a;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 8px;
+        }
+        .btn-outline-light {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+        }
+
+        .table-wrapper {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        table {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        thead {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        thead th {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0.85rem 1rem;
+        }
+        tbody td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .timestamp {
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        .badge-action {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .action-success { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+        .action-danger  { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+        .action-warning { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+        .action-info    { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+        .action-purple  { background: rgba(167, 139, 250, 0.15); color: #a78bfa; }
+        .action-default { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.7); }
+
+        .user-email {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+        }
+        .ip-badge {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .pagination {
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+        .page-item .page-link {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-color: transparent;
+        }
+        .page-item.disabled .page-link {
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(255, 255, 255, 0.3);
+        }
+        .back-link a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+        }
+        .back-link a:hover { color: #a78bfa; }
+    </style>
+</head>
+<body>
+    <div class="container-glass">
+        <div class="back-link mb-3">
+            <a href="{{ url_for('dashboard.admin') }}">
+                <i class="bi bi-arrow-left"></i> Retour au dashboard admin
+            </a>
+        </div>
+
+        <div class="page-title">
+            <div class="icon-circle">
+                <i class="bi bi-shield-fill-check"></i>
+            </div>
+            <div>
+                <h1>Journal d'audit</h1>
+                <div class="subtitle">Tracabilite des actions sensibles (conformite RGPD/CNDP)</div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-label">Total entrees</div>
+                <div class="stat-value">{{ stats.total }}</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">Connexions OK</div>
+                <div class="stat-value">{{ stats.login_success + stats.login_with_2fa }}</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-label">Echecs login</div>
+                <div class="stat-value">{{ stats.login_failed }}</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-label">Connex. 2FA</div>
+                <div class="stat-value">{{ stats.login_with_2fa }}</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">2FA activees</div>
+                <div class="stat-value">{{ stats['2fa_enabled'] }}</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-label">Resets mdp</div>
+                <div class="stat-value">{{ stats.password_resets }}</div>
+            </div>
+        </div>
+
+        <!-- Filtres -->
+        <form method="GET" class="filters">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Action</label>
+                    <select name="action" class="form-select">
+                        <option value="">Toutes les actions</option>
+                        {% for act in distinct_actions %}
+                            <option value="{{ act }}" {% if act == action_filter %}selected{% endif %}>
+                                {{ act }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Utilisateur (email ou nom de cible)</label>
+                    <input type="text"
+                           name="user"
+                           class="form-control"
+                           value="{{ user_filter }}"
+                           placeholder="ex: admin@sporttracker.com">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel-fill"></i> Filtrer
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Tableau -->
+        {% if logs %}
+        <div class="table-wrapper">
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        <th>Date/Heure (UTC)</th>
+                        <th>Utilisateur</th>
+                        <th>Action</th>
+                        <th>Cible</th>
+                        <th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td class="timestamp">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>
+                            <span class="user-email">{{ log.user_email or '-' }}</span>
+                            {% if log.user_role %}
+                                <br><small style="color: rgba(255,255,255,0.4);">{{ log.user_role }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set cls = 'action-default' %}
+                            {% if 'success' in log.action %}{% set cls = 'action-success' %}
+                            {% elif 'failed' in log.action or 'wrong' in log.action or 'invalid' in log.action or 'blocked' in log.action %}{% set cls = 'action-danger' %}
+                            {% elif '2fa' in log.action %}{% set cls = 'action-purple' %}
+                            {% elif 'reset' in log.action %}{% set cls = 'action-info' %}
+                            {% elif 'logout' in log.action %}{% set cls = 'action-warning' %}
+                            {% endif %}
+                            <span class="badge-action {{ cls }}">{{ log.action }}</span>
+                        </td>
+                        <td>
+                            {% if log.target_name %}
+                                <strong>{{ log.target_name }}</strong>
+                                {% if log.target_type %}
+                                    <br><small style="color: rgba(255,255,255,0.4);">{{ log.target_type }}#{{ log.target_id }}</small>
+                                {% endif %}
+                            {% else %}
+                                <span style="color: rgba(255,255,255,0.3);">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.ip_address %}
+                                <span class="ip-badge">{{ log.ip_address }}</span>
+                            {% else %}
+                                <span style="color: rgba(255,255,255,0.3);">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+        <nav>
+            <ul class="pagination">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="?page={{ pagination.prev_num }}&action={{ action_filter }}&user={{ user_filter }}">&laquo;</a>
+                </li>
+                {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if p %}
+                        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="?page={{ p }}&action={{ action_filter }}&user={{ user_filter }}">{{ p }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="?page={{ pagination.next_num }}&action={{ action_filter }}&user={{ user_filter }}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <div>Aucune entree pour ces criteres.</div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

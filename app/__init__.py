@@ -60,6 +60,7 @@ def create_app(config_name='default'):
     from app.routes.medical import medical_bp
     from app.routes.api import api_bp
     from app.routes.exports import export_bp
+    from app.routes.admin import admin_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
@@ -72,6 +73,7 @@ def create_app(config_name='default'):
     app.register_blueprint(medical_bp, url_prefix='/medical')
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(export_bp)
+    app.register_blueprint(admin_bp)
     
     # Route pour servir les fichiers uploadés
     base_uploads_path = os.path.join(os.path.dirname(app.root_path), 'uploads')
