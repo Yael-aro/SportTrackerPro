@@ -6,6 +6,8 @@ SportTracker Pro - Application Factory
 import os
 from flask import Flask, session, send_from_directory
 from flask_login import LoginManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from config import config
 from app.models import db, User
 from app.services import mail
@@ -14,6 +16,13 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Veuillez vous connecter pour accéder à cette page.'
 login_manager.login_message_category = 'warning'
+
+# Rate Limiter (Etape 2.5 - anti brute-force)
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["1000 per day", "200 per hour"],
+    storage_uri="memory://",
+)
 
 
 def create_app(config_name='default'):
@@ -27,6 +36,7 @@ def create_app(config_name='default'):
     db.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
+    limiter.init_app(app)
     
     # Créer le dossier instance si nécessaire
     instance_path = os.path.join(os.path.dirname(app.root_path), 'instance')

@@ -14,6 +14,7 @@ import qrcode
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models import db, User, Player, log_action
+from app import limiter
 from app.forms import LoginForm, RegisterForm, ForgotPasswordForm, ResetPasswordForm
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -24,6 +25,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 # =============================================================================
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit('5 per 15 minutes', methods=['POST'])
 def login():
     """Page de connexion unifiée (avec gestion 2FA et journal d'audit)"""
     if current_user.is_authenticated:
@@ -193,6 +195,7 @@ def profile():
 # =============================================================================
 
 @auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+@limiter.limit('3 per hour', methods=['POST'])
 def forgot_password():
     """Demande de reinitialisation du mot de passe."""
     if current_user.is_authenticated:
@@ -320,6 +323,7 @@ def disable_2fa():
 
 
 @auth_bp.route('/verify-2fa', methods=['GET', 'POST'])
+@limiter.limit('10 per 5 minutes', methods=['POST'])
 def verify_2fa():
     """Verification 2FA juste apres le login mot de passe."""
     user_id = session.get('pre_2fa_user_id')
