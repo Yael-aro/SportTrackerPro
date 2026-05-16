@@ -123,27 +123,27 @@ def compute_injury_probability(features, profile):
 
     # ACWR (Gabbett 2016)
     if features['acwr'] > 1.5:
-        risk *= 4.0
+        risk *= 8.0
     elif features['acwr'] > 1.3:
-        risk *= 2.0
+        risk *= 4.0
     elif features['acwr'] < 0.8:
-        risk *= 1.5
+        risk *= 1.8
 
     # Wellness (Carey 2018)
     if features['wellness_avg_7d'] < 5.0:
-        risk *= 1.6
+        risk *= 3.0
     elif features['wellness_avg_7d'] < 6.0:
-        risk *= 1.3
+        risk *= 1.8
 
     # Sommeil (Hulin 2014)
     if features['sleep_avg_7d'] < 6.0:
-        risk *= 1.5
+        risk *= 2.0
     elif features['sleep_avg_7d'] < 7.0:
-        risk *= 1.2
+        risk *= 1.5
 
     # Historique blessure (Drew 2017)
     if features['days_since_last_injury'] is not None and features['days_since_last_injury'] < 30:
-        risk *= 2.0
+        risk *= 2.5
 
     # Charge cumulee
     if features['acute_load'] > 3000:
@@ -313,7 +313,7 @@ def generate_dataset(n_players=50, n_days=600, output_path=OUTPUT_PATH):
 
             # Tirage : blessure dans les 7 prochains jours ?
             injured = 0
-            if np.random.random() < proba * 0.5:
+            if np.random.random() < proba * 1.2:
                 injured = 1
                 last_injury_date = current_date + timedelta(days=np.random.randint(0, 7))
 

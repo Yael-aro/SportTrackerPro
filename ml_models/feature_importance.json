@@ -1,0 +1,218 @@
+[
+  {
+    "feature": "wellness_avg_28d",
+    "importance": 0.04947480041405507
+  },
+  {
+    "feature": "wellness_avg_7d",
+    "importance": 0.046749132082739224
+  },
+  {
+    "feature": "acute_player_load",
+    "importance": 0.038768390516763784
+  },
+  {
+    "feature": "wellness_today",
+    "importance": 0.036380195577547625
+  },
+  {
+    "feature": "chronic_load",
+    "importance": 0.03625904239364237
+  },
+  {
+    "feature": "chronic_player_load",
+    "importance": 0.036239711785593376
+  },
+  {
+    "feature": "acute_load",
+    "importance": 0.03487194966304609
+  },
+  {
+    "feature": "days_since_injury_filled",
+    "importance": 0.03468697571445209
+  },
+  {
+    "feature": "acwr",
+    "importance": 0.03426166170129283
+  },
+  {
+    "feature": "stress_score",
+    "importance": 0.0325110164891965
+  },
+  {
+    "feature": "recent_injury_log",
+    "importance": 0.032164137115379035
+  },
+  {
+    "feature": "acwr_player_load",
+    "importance": 0.03206676769383676
+  },
+  {
+    "feature": "sleep_today",
+    "importance": 0.030247740493944575
+  },
+  {
+    "feature": "total_distance",
+    "importance": 0.028997510042966093
+  },
+  {
+    "feature": "sleep_avg_7d",
+    "importance": 0.02864666550636954
+  },
+  {
+    "feature": "vmax",
+    "importance": 0.02841435576190994
+  },
+  {
+    "feature": "meters_per_min",
+    "importance": 0.028371138722631292
+  },
+  {
+    "feature": "load_per_min",
+    "importance": 0.027585554049751198
+  },
+  {
+    "feature": "player_load",
+    "importance": 0.02721862204115543
+  },
+  {
+    "feature": "srpe_today",
+    "importance": 0.026940641530825923
+  },
+  {
+    "feature": "sleep_avg_28d",
+    "importance": 0.026835352599209973
+  },
+  {
+    "feature": "high_speed_running",
+    "importance": 0.026680770039182643
+  },
+  {
+    "feature": "duration_min",
+    "importance": 0.02644672801620809
+  },
+  {
+    "feature": "wellness_trend",
+    "importance": 0.023929916861731706
+  },
+  {
+    "feature": "nb_dec",
+    "importance": 0.0221783226838264
+  },
+  {
+    "feature": "age",
+    "importance": 0.021777240922215675
+  },
+  {
+    "feature": "distance_sprint",
+    "importance": 0.021685622809252333
+  },
+  {
+    "feature": "nb_acc",
+    "importance": 0.021661906017540682
+  },
+  {
+    "feature": "sleep_trend",
+    "importance": 0.021641106742269905
+  },
+  {
+    "feature": "sprint_per_min",
+    "importance": 0.021492565612777854
+  },
+  {
+    "feature": "wellness_low",
+    "importance": 0.015081927265997618
+  },
+  {
+    "feature": "nb_sprints",
+    "importance": 0.011088412468737692
+  },
+  {
+    "feature": "rpe_today",
+    "importance": 0.010487653527940725
+  },
+  {
+    "feature": "had_injury_30d",
+    "importance": 0.008161889136772326
+  },
+  {
+    "feature": "acwr_optimal",
+    "importance": 0.006014499117041029
+  },
+  {
+    "feature": "acwr_warning",
+    "importance": 0.004247143426267085
+  },
+  {
+    "feature": "age_old",
+    "importance": 0.003835465224689818
+  },
+  {
+    "feature": "pos_Defenseur",
+    "importance": 0.0037870068121360735
+  },
+  {
+    "feature": "acute_pl_high",
+    "importance": 0.0035622420718177078
+  },
+  {
+    "feature": "double_risk_wellness_acwr",
+    "importance": 0.00341278132066922
+  },
+  {
+    "feature": "wellness_medium",
+    "importance": 0.003363505607740255
+  },
+  {
+    "feature": "sleep_suboptimal",
+    "importance": 0.00318786188595512
+  },
+  {
+    "feature": "pos_Milieu",
+    "importance": 0.0027737085807801637
+  },
+  {
+    "feature": "double_risk_sleep_injury",
+    "importance": 0.0027665989300674496
+  },
+  {
+    "feature": "age_young",
+    "importance": 0.002212535258419339
+  },
+  {
+    "feature": "pos_Attaquant",
+    "importance": 0.0020085725972274443
+  },
+  {
+    "feature": "pos_Gardien",
+    "importance": 0.001897712917330858
+  },
+  {
+    "feature": "acwr_undertraining",
+    "importance": 0.001777785774378401
+  },
+  {
+    "feature": "is_match_day",
+    "importance": 0.0015272628998474812
+  },
+  {
+    "feature": "had_injury_90d",
+    "importance": 0.001335816966258185
+  },
+  {
+    "feature": "sleep_insufficient",
+    "importance": 0.001079618417069487
+  },
+  {
+    "feature": "triple_risk",
+    "importance": 0.000715793705973662
+  },
+  {
+    "feature": "acute_load_high",
+    "importance": 0.0004627303678920405
+  },
+  {
+    "feature": "acwr_danger",
+    "importance": 2.593411767686092e-05
+  }
+]
