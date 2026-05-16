@@ -196,7 +196,58 @@
 
     <!-- Colonne droite: Détails & Sections -->
     <div class="col-lg-8">
-        <!-- Carte: Informations de l'équipe -->
+        <!-- Carte: Securite (2FA) -->
+        <div class="card mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-shield-lock-fill me-2 text-success"></i>Securite du compte</h6>
+                {% if current_user.totp_enabled %}
+                    <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>2FA active</span>
+                {% else %}
+                    <span class="badge bg-secondary"><i class="bi bi-shield-slash me-1"></i>2FA inactive</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="mb-2">
+                            <i class="bi bi-phone me-2"></i>Authentification a deux facteurs
+                        </h6>
+                        {% if current_user.totp_enabled %}
+                        <p class="text-muted mb-0">
+                            Votre compte est <strong class="text-success">protege par la 2FA</strong>.
+                            A chaque connexion, un code a 6 chiffres sera demande apres votre mot de passe.
+                            <br>
+                            <small>Utilisez Google Authenticator, Microsoft Authenticator ou Authy.</small>
+                        </p>
+                        {% else %}
+                        <p class="text-muted mb-0">
+                            Renforcez la securite de votre compte en activant la double authentification.
+                            Un code temporaire a 6 chiffres sera demande a chaque connexion.
+                            <br>
+                            <small><i class="bi bi-info-circle"></i> Recommande pour les comptes admin, coach et medical.</small>
+                        </p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        {% if current_user.totp_enabled %}
+                            <form method="POST" action="{{ url_for('auth.disable_2fa') }}"
+                                  onsubmit="return confirm('Etes-vous sur de vouloir desactiver la 2FA ? Votre compte sera moins securise.');"
+                                  style="display: inline;">
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="bi bi-shield-slash"></i> Desactiver
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{{ url_for('auth.setup_2fa') }}" class="btn btn-success">
+                                <i class="bi bi-shield-check"></i> Activer la 2FA
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                <!-- Carte: Informations de l'équipe -->
         <div class="card mb-4">
             <div class="card-header bg-light">
                 <h6 class="mb-0"><i class="bi bi-people me-2"></i>Équipe</h6>

@@ -1,5 +1,5 @@
 """
-SportTracker Pro - Service d'Export PDF
+RajaTracker - Service d'Export PDF
 =====================================
 Génération de rapports PDF pour joueurs, équipes et séances
 """
@@ -192,7 +192,7 @@ def generate_player_report(player, metrics, injuries, wellness_records):
         
         # 6. FOOTER
         story.append(Spacer(1, 0.5*inch))
-        footer_text = f"Rapport généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')} | SportTrackerPro v2.0"
+        footer_text = f"Rapport généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')} | RajaTracker v2.0"
         story.append(Paragraph(f"<i>{footer_text}</i>", styles['Normal']))
         
         # Build PDF

@@ -1,5 +1,5 @@
 """
-SportTracker Pro - Service de Notifications
+RajaTracker - Service de Notifications
 ==========================================
 Gestion des notifications par email pour alertes critiques
 """
@@ -35,7 +35,7 @@ Consultez le dashboard médical pour plus de détails :
 http://localhost:8080/medical/injuries
 
 ---
-SportTrackerPro - Système d'alertes médical
+RajaTracker - Système d'alertes médical
 """
     
     _send_email(user.email, subject, body)
@@ -66,7 +66,7 @@ Consultez le dashboard pour plus :
 http://localhost:8080/dashboard/coach
 
 ---
-SportTrackerPro - Système d'alertes de charge
+RajaTracker - Système d'alertes de charge
 """
     
     _send_email(user.email, subject, body)
@@ -100,7 +100,7 @@ Consultez le dashboard :
 http://localhost:8080/medical/wellness
 
 ---
-SportTrackerPro - Système d'alertes bien-être
+RajaTracker - Système d'alertes bien-être
 """
     
     _send_email(user.email, subject, body)
@@ -134,7 +134,7 @@ Dashboard détaillé :
 http://localhost:8080/players/{player.id}
 
 ---
-SportTrackerPro - Système d'alertes de surcharge
+RajaTracker - Système d'alertes de surcharge
 """
     
     _send_email(user.email, subject, body)
@@ -148,7 +148,7 @@ def _send_email(recipient, subject, body):
             subject=subject,
             recipients=[recipient],
             body=body,
-            sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@sporttrackerpro.com')
+            sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@rajatrackerpro.com')
         )
         mail.send(msg)
         logger.info(f"✅ Email envoyé à {recipient}: {subject}")

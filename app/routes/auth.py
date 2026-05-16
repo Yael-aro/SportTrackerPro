@@ -1,5 +1,5 @@
 """
-SportTracker Pro - Routes d'Authentification
+RajaTracker - Routes d'Authentification
 =============================================
 """
 
@@ -46,20 +46,21 @@ def login():
                 flash('Votre compte est désactivé.', 'danger')
                 return render_template('auth/login.html', form=form)
 
-            # Si 2FA active : rediriger vers la verification 2FA
+            # 2FA OBLIGATOIRE pour tous les utilisateurs
             if user.totp_enabled:
+                # 2FA deja activee : rediriger vers verification du code
                 session['pre_2fa_user_id'] = user.id
                 log_action('login_2fa_required', target_type='user',
                            target_id=user.id, target_name=user.email, user=user)
                 return redirect(url_for('auth.verify_2fa'))
-
-            # Sinon connexion directe
-            login_user(user)
-            session['user_role'] = user.role
-            log_action('login_success', target_type='user',
-                       target_id=user.id, target_name=user.email, user=user)
-            flash(f'Bienvenue {user.first_name} !', 'success')
-            return redirect_by_role(user.role)
+            else:
+                # 2FA pas encore activee : forcer la configuration
+                session['pre_2fa_user_id'] = user.id
+                session['must_setup_2fa'] = True
+                log_action('login_2fa_setup_required', target_type='user',
+                           target_id=user.id, target_name=user.email, user=user)
+                flash("Bienvenue ! Pour proteger votre compte, vous devez activer l'authentification a 2 facteurs.", 'info')
+                return redirect(url_for('auth.setup_2fa'))
         else:
             # Echec : on log meme si user inexistant (sans crash)
             log_action('login_failed', target_type='user',
@@ -266,21 +267,38 @@ def reset_password(token):
 # =============================================================================
 
 @auth_bp.route('/setup-2fa', methods=['GET', 'POST'])
-@login_required
 def setup_2fa():
-    """Activer la 2FA : QR code + verification d'un premier code."""
-    if current_user.totp_enabled:
-        flash("La 2FA est deja activee sur votre compte.", 'info')
-        return redirect(url_for('auth.profile'))
+    """
+    Activer la 2FA : QR code + verification d'un premier code.
+    Accessible :
+    - Si l'utilisateur est deja connecte (renforcement volontaire)
+    - Si l'utilisateur vient de saisir son mot de passe correct mais n'a pas encore active la 2FA (pre_2fa_user_id en session)
+    """
+    # Cas 1 : utilisateur deja connecte
+    if current_user.is_authenticated:
+        user = current_user
+    # Cas 2 : utilisateur en cours de premier login (force par 2FA obligatoire)
+    elif session.get('pre_2fa_user_id'):
+        user = User.query.get(session['pre_2fa_user_id'])
+        if not user:
+            return redirect(url_for('auth.login'))
+    else:
+        return redirect(url_for('auth.login'))
 
-    if not current_user.totp_secret:
-        current_user.totp_secret = pyotp.random_base32()
+    if user.totp_enabled:
+        flash("La 2FA est deja activee sur votre compte.", 'info')
+        if current_user.is_authenticated:
+            return redirect(url_for('auth.profile'))
+        return redirect(url_for('auth.verify_2fa'))
+
+    if not user.totp_secret:
+        user.totp_secret = pyotp.random_base32()
         db.session.commit()
 
-    totp = pyotp.TOTP(current_user.totp_secret)
+    totp = pyotp.TOTP(user.totp_secret)
     provisioning_uri = totp.provisioning_uri(
-        name=current_user.email,
-        issuer_name='SportTracker Pro'
+        name=user.email,
+        issuer_name='RajaTracker'
     )
 
     img = qrcode.make(provisioning_uri)
@@ -291,21 +309,32 @@ def setup_2fa():
     if request.method == 'POST':
         code = request.form.get('code', '').strip()
         if totp.verify(code):
-            current_user.totp_enabled = True
+            user.totp_enabled = True
             db.session.commit()
             log_action('2fa_enabled', target_type='user',
-                       target_id=current_user.id, target_name=current_user.email)
+                       target_id=user.id, target_name=user.email, user=user)
+
+            # Si setup obligatoire post-login : on connecte l'utilisateur maintenant
+            if session.get('must_setup_2fa'):
+                session.pop('must_setup_2fa', None)
+                session.pop('pre_2fa_user_id', None)
+                login_user(user)
+                session['user_role'] = user.role
+                flash(f"2FA activee avec succes ! Bienvenue {user.first_name} !", 'success')
+                return redirect_by_role(user.role)
+
             flash("Authentification a 2 facteurs activee avec succes !", 'success')
             return redirect(url_for('auth.profile'))
         else:
             log_action('2fa_setup_wrong_code', target_type='user',
-                       target_id=current_user.id, target_name=current_user.email)
+                       target_id=user.id, target_name=user.email, user=user)
             flash("Code incorrect. Verifiez l'heure de votre telephone et reessayez.", 'danger')
 
     return render_template(
         'auth/setup_2fa.html',
         qr_base64=qr_base64,
-        secret=current_user.totp_secret
+        secret=user.totp_secret,
+        forced_setup=session.get('must_setup_2fa', False)
     )
 
 

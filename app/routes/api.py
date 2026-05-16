@@ -1,5 +1,5 @@
 """
-SportTracker Pro - API REST
+RajaTracker - API REST
 ===========================
 Endpoints API pour intégrations externes et graphiques
 """

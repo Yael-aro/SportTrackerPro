@@ -1,5 +1,5 @@
 """
-SportTracker Pro - Point d'entrée
+RajaTracker - Point d'entrée
 =================================
 Lancez l'application avec: python run.py
 """
@@ -41,7 +41,7 @@ def init_db():
     
     # Créer un admin
     admin = User(
-        email='admin@sporttracker.com',
+        email='admin@rajatracker.com',
         first_name='Admin',
         last_name='System',
         role='admin'
@@ -51,7 +51,7 @@ def init_db():
     
     # Créer un coach
     coach = User(
-        email='coach@sporttracker.com',
+        email='coach@rajatracker.com',
         first_name='Mohamed',
         last_name='Bencherif',
         role='coach'
@@ -114,7 +114,7 @@ def init_db():
         
         if player:
             # Créer un compte utilisateur pour le joueur
-            email = f"{first.lower()}.{last.lower()}@sporttracker.com"
+            email = f"{first.lower()}.{last.lower()}@rajatracker.com"
             
             # Vérifier si le compte existe déjà
             existing_user = User.query.filter_by(email=email).first()
@@ -156,11 +156,11 @@ def init_db():
     
     print("✅ Base de données initialisée avec succès !")
     print("\n📧 Comptes de test :")
-    print("   Admin: admin@sporttracker.com / admin123")
-    print("   Coach: coach@sporttracker.com / coach123")
-    print("\n🏃 Comptes joueurs (format: prenom.nom@sporttracker.com / player123):")
+    print("   Admin: admin@rajatracker.com / admin123")
+    print("   Coach: coach@rajatracker.com / coach123")
+    print("\n🏃 Comptes joueurs (format: prenom.nom@rajatracker.com / player123):")
     for first, last, dob, pos, team_id in players_data:
-        print(f"   - {first.lower()}.{last.lower()}@sporttracker.com")
+        print(f"   - {first.lower()}.{last.lower()}@rajatracker.com")
 
 
 @app.cli.command()

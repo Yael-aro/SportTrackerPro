@@ -1,5 +1,5 @@
 """
-SportTracker Pro - Portail Joueur
+RajaTracker - Portail Joueur
 =================================
 Interface dédiée aux joueurs
 """

@@ -1,5 +1,5 @@
 """
-SportTracker Pro - Application Factory
+RajaTracker - Application Factory
 =======================================
 """
 
@@ -97,7 +97,7 @@ def create_app(config_name='default'):
     @app.context_processor
     def inject_globals():
         return {
-            'app_name': 'SportTracker Pro',
+            'app_name': 'RajaTracker',
             'app_version': '2.0',
             'current_user_role': session.get('user_role', 'guest')
         }

@@ -1,5 +1,5 @@
 """
-SportTracker Pro - Modèles de Données
+RajaTracker - Modèles de Données
 =====================================
 Modèles SQLAlchemy pour la gestion des joueurs, équipes, séances,
 données GPS et analyses ML.

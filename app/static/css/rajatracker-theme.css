@@ -1,0 +1,75 @@
+/* =============================================================================
+   RajaTracker Theme - Charte graphique vert/blanc
+   Couleurs officielles : Raja Club Athletic de Casablanca
+   ============================================================================= */
+
+:root {
+    /* Couleurs principales Raja */
+    --raja-green: #006633;
+    --raja-green-light: #28a745;
+    --raja-green-lighter: #d4edda;
+    --raja-green-dark: #004d26;
+    --raja-green-darker: #003319;
+
+    /* Blancs */
+    --raja-white: #ffffff;
+    --raja-white-off: #f8f9fa;
+    --raja-gray-light: #e9ecef;
+
+    /* Textes */
+    --raja-text-dark: #1a3d2e;
+    --raja-text-muted: #6c757d;
+
+    /* Accents */
+    --raja-accent: var(--raja-green);
+    --raja-success: var(--raja-green-light);
+    --raja-warning: #ffc107;
+    --raja-danger: #dc3545;
+    --raja-info: var(--raja-green);
+
+    /* Degrades */
+    --raja-gradient: linear-gradient(135deg, var(--raja-green) 0%, var(--raja-green-light) 100%);
+    --raja-gradient-light: linear-gradient(135deg, var(--raja-green-light) 0%, var(--raja-green-lighter) 100%);
+}
+
+/* Liens dans le contexte clair */
+.text-primary {
+    color: var(--raja-green) !important;
+}
+.bg-primary {
+    background-color: var(--raja-green) !important;
+}
+.btn-primary {
+    background-color: var(--raja-green) !important;
+    border-color: var(--raja-green) !important;
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: var(--raja-green-dark) !important;
+    border-color: var(--raja-green-dark) !important;
+}
+.btn-outline-primary {
+    color: var(--raja-green) !important;
+    border-color: var(--raja-green) !important;
+}
+.btn-outline-primary:hover {
+    background-color: var(--raja-green) !important;
+    color: white !important;
+}
+
+/* Sidebar dashboard : accents verts */
+.sidebar a.active, .sidebar a:hover {
+    color: var(--raja-green-light) !important;
+}
+
+/* Stat cards : valeurs en vert */
+.stat-value-green {
+    color: var(--raja-green-light) !important;
+}
+
+/* Liens generaux */
+a {
+    color: var(--raja-green);
+}
+a:hover {
+    color: var(--raja-green-dark);
+}

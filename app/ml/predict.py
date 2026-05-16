@@ -171,7 +171,7 @@ def predict_risk(player_features):
 
 def predict_from_player_db(player, target_date=None):
     """
-    Predit le risque pour un joueur de la base SportTracker Pro.
+    Predit le risque pour un joueur de la base RajaTracker.
     Recupere ses donnees recentes (charges, wellness, etc.) automatiquement.
 
     Args:

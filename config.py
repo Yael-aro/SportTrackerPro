@@ -1,5 +1,5 @@
 """
-SportTracker Pro - Configuration
+RajaTracker - Configuration
 ================================
 """
 
@@ -13,7 +13,7 @@ class Config:
     """Configuration de base"""
     
     # Clé secrète
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'sporttracker-pro-secret-key-2025'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'rajatracker-secret-key-2025'
     
     # Base de données
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -52,7 +52,7 @@ class Config:
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', True)
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')  # email@gmail.com
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')  # app password
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or 'noreply@sporttrackerpro.com'
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or 'noreply@rajatrackerpro.com'
     
     # Pour développement: mode offline email (affiche logs)
     TESTING_MAIL = os.environ.get('TESTING_MAIL', False)
@@ -67,7 +67,7 @@ class DevelopmentConfig(Config):
     
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'instance', 'sporttracker_pro.db')
+        'sqlite:///' + os.path.join(basedir, 'instance', 'rajatracker.db')
 
 
 class ProductionConfig(Config):
@@ -75,7 +75,7 @@ class ProductionConfig(Config):
     
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'postgresql://user:password@localhost/sporttracker_pro'
+        'postgresql://user:password@localhost/rajatracker'
     
     # Supabase (optionnel)
     SUPABASE_URL = os.environ.get('SUPABASE_URL')
