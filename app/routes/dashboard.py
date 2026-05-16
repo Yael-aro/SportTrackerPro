@@ -90,23 +90,30 @@ def coach_dashboard():
     
 
     # Predictions IA (Random Forest, AUC 0.685)
+    # Priorite : joueurs avec donnees GPS reelles, puis les autres
     players_ai_risk = []
     for player in Player.query.filter(Player.status != 'Blesse').all():
         try:
             prediction = predict_from_player_db(player)
+            # Compter les seances GPS reelles pour ce joueur
+            nb_gps = player.gps_data.count()
             players_ai_risk.append({
                 'player': player,
                 'risk_percent': prediction['risk_percent'],
                 'risk_level': prediction['risk_level'],
                 'risk_color': prediction['risk_color'],
                 'risk_score': prediction['risk_score'],
+                'nb_gps': nb_gps,
+                'has_real_data': nb_gps > 0,
             })
         except Exception as e:
-            # En cas d'erreur, on ignore ce joueur
             continue
 
-    # Trier par risque decroissant, garder le top 10
-    players_ai_risk.sort(key=lambda x: x['risk_score'], reverse=True)
+    # Trier : 1) joueurs avec GPS reel d'abord, 2) puis par risque decroissant
+    players_ai_risk.sort(
+        key=lambda x: (x['has_real_data'], x['risk_score']),
+        reverse=True
+    )
     players_ai_risk = players_ai_risk[:10]
 
     # Charge d'équipe

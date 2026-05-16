@@ -128,10 +128,14 @@ def add_player():
 @players_bp.route('/<int:id>')
 @login_required
 def view_player(id):
-    """Voir un joueur"""
+    """Voir un joueur avec analyses GPS + prediction IA"""
+    from app.ml.predict import predict_from_player_db
+    from app.ml.explain import explain_prediction
+    from sqlalchemy import func
+
     player = Player.query.get_or_404(id)
-    
-    # Calculer les métriques
+
+    # Metriques de charge (existant)
     metrics = {
         'weekly_load': player.get_weekly_load(),
         'acwr': player.get_acwr(),
@@ -140,22 +144,89 @@ def view_player(id):
         'tsb': player.get_tsb(),
         'form_status': player.get_form_status()
     }
-    
-    # Dernières performances
+
+    # Dernieres performances (existant)
     recent_results = player.results.order_by(
         TrainingResult.recorded_at.desc()
     ).limit(10).all()
-    
-    # Dernières données GPS
-    recent_gps = player.gps_data.order_by(
-        GPSData.recorded_at.desc()
-    ).limit(5).all()
-    
+
+    # Toutes les donnees GPS (ordre chronologique pour les graphiques)
+    all_gps = player.gps_data.order_by(GPSData.recorded_at.asc()).all()
+    recent_gps = list(reversed(all_gps[-5:])) if all_gps else []
+
+    # Statistiques GPS globales
+    gps_stats = None
+    if all_gps:
+        distances = [g.total_distance for g in all_gps if g.total_distance]
+        loads = [g.player_load for g in all_gps if g.player_load]
+        speeds = [g.max_speed for g in all_gps if g.max_speed]
+        sprints = [g.sprint_distance for g in all_gps if g.sprint_distance]
+
+        gps_stats = {
+            'nb_sessions': len(all_gps),
+            'avg_distance': round(sum(distances) / len(distances)) if distances else 0,
+            'max_distance': round(max(distances)) if distances else 0,
+            'avg_load': round(sum(loads) / len(loads), 1) if loads else 0,
+            'max_load': round(max(loads), 1) if loads else 0,
+            'avg_speed': round(sum(speeds) / len(speeds), 2) if speeds else 0,
+            'max_speed': round(max(speeds), 2) if speeds else 0,
+            'total_sprints': round(sum(sprints)) if sprints else 0,
+        }
+
+    # Donnees pour les graphiques Chart.js (serialisable JSON)
+    chart_data = {
+        'labels': [],
+        'distances': [],
+        'loads': [],
+        'speeds': [],
+        'sprints': [],
+    }
+    for g in all_gps:
+        if g.recorded_at:
+            chart_data['labels'].append(g.recorded_at.strftime('%d/%m/%Y'))
+        else:
+            chart_data['labels'].append('-')
+        chart_data['distances'].append(round(g.total_distance) if g.total_distance else 0)
+        chart_data['loads'].append(round(g.player_load, 1) if g.player_load else 0)
+        chart_data['speeds'].append(round(g.max_speed, 2) if g.max_speed else 0)
+        chart_data['sprints'].append(round(g.sprint_distance) if g.sprint_distance else 0)
+
+    # Prediction IA + explication
+    ai_prediction = None
+    ai_explanation = None
+    try:
+        ai_prediction = predict_from_player_db(player)
+        ai_explanation = explain_prediction(
+            {
+                'age': player.age or 25,
+                'position': player.position or 'Milieu',
+                'acwr': metrics['acwr'] or 1.0,
+                'wellness_avg_7d': 7.5,
+                'wellness_avg_28d': 7.5,
+                'sleep_avg_7d': 7.5,
+                'sleep_avg_28d': 7.5,
+                'acute_load': metrics['weekly_load'] or 0,
+                'chronic_load': player.get_chronic_load() or 0,
+                'acute_player_load': metrics['weekly_load'] or 0,
+                'days_since_last_injury': None,
+                'had_injury_30d': 0,
+            },
+            ai_prediction
+        )
+    except Exception as e:
+        # En cas d'erreur, on continue sans IA
+        ai_prediction = None
+        ai_explanation = None
+
     return render_template('coach/players/view.html',
                           player=player,
                           metrics=metrics,
                           recent_results=recent_results,
-                          recent_gps=recent_gps)
+                          recent_gps=recent_gps,
+                          gps_stats=gps_stats,
+                          chart_data=chart_data,
+                          ai_prediction=ai_prediction,
+                          ai_explanation=ai_explanation)
 
 
 @players_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
