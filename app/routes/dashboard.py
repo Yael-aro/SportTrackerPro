@@ -8,6 +8,8 @@ from flask import Blueprint, render_template, jsonify
 from flask_login import login_required, current_user
 from datetime import date, timedelta
 from sqlalchemy import func
+from app.ml.predict import predict_from_player_db
+from app.ml.explain import explain_prediction
 from app.models import db, Player, Team, TrainingSession, TrainingResult, GPSData, Injury, WellnessRecord, Recommendation
 
 dashboard_bp = Blueprint('dashboard', __name__)
@@ -86,6 +88,27 @@ def coach_dashboard():
     players_at_risk.sort(key=lambda x: (x['acwr'], -x['tsb']), reverse=True)
     players_at_risk = players_at_risk[:5]
     
+
+    # Predictions IA (Random Forest, AUC 0.685)
+    players_ai_risk = []
+    for player in Player.query.filter(Player.status != 'Blesse').all():
+        try:
+            prediction = predict_from_player_db(player)
+            players_ai_risk.append({
+                'player': player,
+                'risk_percent': prediction['risk_percent'],
+                'risk_level': prediction['risk_level'],
+                'risk_color': prediction['risk_color'],
+                'risk_score': prediction['risk_score'],
+            })
+        except Exception as e:
+            # En cas d'erreur, on ignore ce joueur
+            continue
+
+    # Trier par risque decroissant, garder le top 10
+    players_ai_risk.sort(key=lambda x: x['risk_score'], reverse=True)
+    players_ai_risk = players_ai_risk[:10]
+
     # Charge d'équipe
     team_loads = []
     for team in Team.query.all():
@@ -123,6 +146,7 @@ def coach_dashboard():
                           stats=stats,
                           upcoming_sessions=upcoming_sessions,
                           players_at_risk=players_at_risk,
+                          players_ai_risk=players_ai_risk,
                           team_loads=team_loads,
                           chart_data=chart_data,
                           recommendations=recommendations)
