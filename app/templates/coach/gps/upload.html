@@ -1,57 +1,246 @@
 {% extends "shared/base.html" %}
 
-{% block page_title %}Import Données GPS{% endblock %}
+{% block title %}Importer données GPS - RajaTracker{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-cloud-upload me-2"></i>Import de Fichier GPS</h5>
+<div class="container py-4">
+
+    <!-- En-tete -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-cloud-upload-fill text-success me-2"></i>
+                Importer des données GPS
+            </h2>
+            <p class="text-muted mb-0">
+                Auto-détection du fournisseur : Catapult Sports, STATSports, Playertek, GPExe...
+            </p>
+        </div>
+        <a href="{{ url_for('gps.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-            <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
-                    {{ form.hidden_tag() }}
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Fournisseur GPS *</label>
-                        {{ form.provider(class="form-select") }}
-                        <small class="text-muted">Sélectionnez la marque de vos gilets GPS</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Séance associée *</label>
-                        {{ form.session_id(class="form-select") }}
-                        <small class="text-muted">Les données seront liées à cette séance</small>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label">Fichier de données *</label>
-                        <div class="border rounded p-4 text-center bg-light">
-                            {{ form.file(class="form-control") }}
-                            <small class="text-muted d-block mt-2">
-                                Formats acceptés: CSV, Excel, JSON, XML (max 50 Mo)
-                            </small>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row g-4">
+
+        <!-- Colonne gauche : Drag & Drop -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="mb-3">
+                        <i class="bi bi-file-earmark-arrow-up me-2"></i>
+                        Glissez votre fichier ici
+                    </h5>
+
+                    <form method="POST" action="{{ url_for('gps.upload') }}"
+                          enctype="multipart/form-data" id="uploadForm">
+
+                        <!-- Zone drag-and-drop -->
+                        <div id="dropZone" class="drop-zone">
+                            <div class="drop-zone-content">
+                                <i class="bi bi-cloud-arrow-up-fill drop-icon"></i>
+                                <h4 class="mt-3 mb-2">Cliquez ou glissez un fichier</h4>
+                                <p class="text-muted mb-2">
+                                    Formats acceptés : <strong>.xlsx, .xls, .csv</strong>
+                                </p>
+                                <p class="text-muted small">
+                                    <i class="bi bi-info-circle"></i>
+                                    Vos fichiers Catapult, STATSports, Playertek ou GPExe sont reconnus automatiquement.
+                                </p>
+                            </div>
+                            <input type="file" name="file" id="fileInput"
+                                   accept=".xlsx,.xls,.csv" hidden required>
                         </div>
-                    </div>
-                    
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Important:</strong> Le fichier doit contenir une colonne avec le nom des joueurs
-                        (format "Prénom Nom" ou "Nom Prénom").
-                    </div>
-                    
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('gps.index') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>Retour
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-upload me-1"></i>Importer
+
+                        <!-- Apercu du fichier selectionne -->
+                        <div id="filePreview" class="mt-3" style="display: none;">
+                            <div class="alert alert-success d-flex justify-content-between align-items-center mb-0">
+                                <div>
+                                    <i class="bi bi-file-earmark-spreadsheet-fill me-2"></i>
+                                    <strong id="fileName"></strong>
+                                    <span class="text-muted ms-2" id="fileSize"></span>
+                                </div>
+                                <button type="button" class="btn-close" id="removeFile"></button>
+                            </div>
+                        </div>
+
+                        <!-- Bouton submit -->
+                        <button type="submit" class="btn btn-success btn-lg w-100 mt-3" id="submitBtn" disabled>
+                            <i class="bi bi-cloud-upload-fill me-2"></i>
+                            Importer et analyser
                         </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne droite : Informations -->
+        <div class="col-lg-5">
+
+            <!-- Carte : Comment ça marche ? -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="bi bi-magic text-success me-2"></i>
+                        Comment ça marche ?
+                    </h6>
+                    <ol class="ps-3 mb-0" style="font-size: 0.95rem;">
+                        <li class="mb-2">Glissez votre fichier exporté du système GPS</li>
+                        <li class="mb-2">RajaTracker détecte automatiquement le fournisseur</li>
+                        <li class="mb-2">Les séances sont créées automatiquement</li>
+                        <li class="mb-2">Les joueurs sont matchés par leur nom</li>
+                        <li>Les données GPS sont rattachées aux séances</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Carte : Fournisseurs supportés -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="bi bi-check2-circle text-success me-2"></i>
+                        Fournisseurs supportés
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
+                            <i class="bi bi-check2 me-1"></i>Catapult Sports (FR)
+                        </span>
+                        <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
+                            <i class="bi bi-check2 me-1"></i>Catapult Sports (EN)
+                        </span>
+                        <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
+                            <i class="bi bi-check2 me-1"></i>STATSports
+                        </span>
+                        <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
+                            <i class="bi bi-check2 me-1"></i>Playertek
+                        </span>
+                        <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle">
+                            <i class="bi bi-check2 me-1"></i>GPExe
+                        </span>
                     </div>
-                </form>
+                </div>
+            </div>
+
+            <!-- Carte : Donnees extraites -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-3">
+                        <i class="bi bi-database-fill-up text-success me-2"></i>
+                        Données extraites
+                    </h6>
+                    <div class="row g-2" style="font-size: 0.85rem;">
+                        <div class="col-6"><i class="bi bi-dot"></i> Distance totale</div>
+                        <div class="col-6"><i class="bi bi-dot"></i> Zones de vitesse</div>
+                        <div class="col-6"><i class="bi bi-dot"></i> Vmax</div>
+                        <div class="col-6"><i class="bi bi-dot"></i> Sprints (nb)</div>
+                        <div class="col-6"><i class="bi bi-dot"></i> Player Load</div>
+                        <div class="col-6"><i class="bi bi-dot"></i> Accélérations</div>
+                        <div class="col-6"><i class="bi bi-dot"></i> Décélérations</div>
+                        <div class="col-6"><i class="bi bi-dot"></i> HSR (m)</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.drop-zone {
+    border: 3px dashed #28a745;
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(0, 102, 51, 0.05) 100%);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.drop-zone:hover, .drop-zone.dragover {
+    border-color: #006633;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(0, 102, 51, 0.15) 100%);
+    transform: translateY(-2px);
+}
+.drop-icon {
+    font-size: 4rem;
+    color: #28a745;
+    opacity: 0.7;
+}
+.drop-zone:hover .drop-icon {
+    opacity: 1;
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+</style>
+
+<script>
+(function() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const removeFile = document.getElementById('removeFile');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Click sur la zone : ouvrir le selecteur de fichier
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    // Drag events
+    ['dragenter', 'dragover'].forEach(evt => {
+        dropZone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+        dropZone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+        });
+    });
+
+    // Drop : recuperer le fichier
+    dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            showPreview(files[0]);
+        }
+    });
+
+    // Selection via input
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            showPreview(fileInput.files[0]);
+        }
+    });
+
+    // Afficher l'apercu
+    function showPreview(file) {
+        fileName.textContent = file.name;
+        const kb = (file.size / 1024).toFixed(1);
+        fileSize.textContent = `(${kb} Ko)`;
+        filePreview.style.display = 'block';
+        submitBtn.disabled = false;
+    }
+
+    // Retirer le fichier
+    removeFile.addEventListener('click', () => {
+        fileInput.value = '';
+        filePreview.style.display = 'none';
+        submitBtn.disabled = true;
+    });
+})();
+</script>
 {% endblock %}

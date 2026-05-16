@@ -33,41 +33,155 @@ def index():
 @gps_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
-    """Upload de fichier GPS"""
-    form = GPSUploadForm()
-    form.session_id.choices = [(s.id, f"{s.date} - {s.title}") 
-                               for s in TrainingSession.query.order_by(
-                                   TrainingSession.date.desc()
-                               ).limit(20).all()]
-    
-    if form.validate_on_submit():
-        file = form.file.data
+    """
+    Upload de fichier GPS avec auto-detection du fournisseur.
+    Cree automatiquement les seances et matche les joueurs par nom.
+    """
+    if request.method == 'POST':
+        file = request.files.get('file')
+        if not file or not file.filename:
+            flash("Aucun fichier selectionne.", 'danger')
+            return redirect(url_for('gps.upload'))
+
         filename = secure_filename(file.filename)
-        
-        # Sauvegarder temporairement
         upload_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(upload_path)
-        
+
         try:
-            # Parser le fichier selon le fournisseur
-            provider = form.provider.data
-            session_id = form.session_id.data
-            
-            records = parse_gps_file(upload_path, provider, session_id)
-            
-            flash(f'{len(records)} enregistrements GPS importés !', 'success')
-            
+            from app.services.gps_parser import parse_file_with_autodetect
+            from datetime import datetime as dt
+
+            # 1. Auto-detection + parsing
+            result = parse_file_with_autodetect(upload_path)
+
+            if 'error' in result:
+                flash(f"Erreur : {result['error']}", 'danger')
+                if 'columns_found' in result:
+                    flash(f"Colonnes trouvees : {', '.join(result['columns_found'][:5])}...", 'info')
+                return redirect(url_for('gps.upload'))
+
+            provider_display = result['display_name']
+            confidence = result['confidence']
+            records = result['records']
+
+            # 2. Importer chaque enregistrement
+            sessions_created = 0
+            sessions_reused = 0
+            gps_imported = 0
+            players_not_found = []
+            players_found = set()
+
+            for record in records:
+                player_name = record.get('player_name')
+                if not player_name:
+                    continue
+
+                # Trouver le joueur
+                player = find_player_by_name(str(player_name))
+                if not player:
+                    players_not_found.append(str(player_name))
+                    continue
+                players_found.add(player.full_name)
+
+                # Date de la seance
+                session_date = record.get('date')
+                if session_date is None:
+                    continue
+                if isinstance(session_date, str):
+                    try:
+                        session_date = dt.strptime(session_date, '%Y-%m-%d').date()
+                    except ValueError:
+                        try:
+                            session_date = dt.strptime(session_date, '%d/%m/%Y').date()
+                        except ValueError:
+                            continue
+                elif hasattr(session_date, 'date'):
+                    session_date = session_date.date()
+
+                # Type de seance (depuis la colonne Activite)
+                activity = record.get('session_type') or f"Seance {session_date}"
+                session_type = 'Match' if 'match' in str(activity).lower() else 'Entrainement'
+
+                # Trouver ou creer la seance
+                duration = int(record.get('duration') or 90)
+                session = TrainingSession.query.filter_by(
+                    date=session_date,
+                    title=str(activity)[:100],
+                ).first()
+
+                if not session:
+                    session = TrainingSession(
+                        title=str(activity)[:100],
+                        session_type=session_type,
+                        date=session_date,
+                        duration=duration,
+                        team_id=player.team_id,
+                        is_completed=True,
+                        created_by=current_user.id,
+                    )
+                    db.session.add(session)
+                    db.session.flush()
+                    sessions_created += 1
+                else:
+                    sessions_reused += 1
+
+                # Creer/MAJ l'enregistrement GPS
+                gps = GPSData.query.filter_by(
+                    player_id=player.id,
+                    session_id=session.id
+                ).first()
+
+                if not gps:
+                    gps = GPSData(
+                        player_id=player.id,
+                        session_id=session.id,
+                        provider=result['provider'],
+                    )
+                    db.session.add(gps)
+
+                # Mapper les champs
+                gps.total_distance = safe_float(record.get('total_distance'))
+                gps.hsr_distance = safe_float(record.get('hsr_distance'))
+                gps.sprint_distance = safe_float(record.get('sprint_distance'))
+                gps.max_speed = safe_float(record.get('max_speed'))
+                gps.avg_speed = safe_float(record.get('avg_speed'))
+                gps.player_load = safe_float(record.get('player_load'))
+                gps.accelerations = safe_int(record.get('accelerations'))
+                gps.decelerations = safe_int(record.get('decelerations'))
+                gps_imported += 1
+
+            db.session.commit()
+
+            # Messages de feedback
+            flash(
+                f"Fichier importe avec succes ! Fournisseur detecte : {provider_display} "
+                f"(confiance {int(confidence*100)}%)",
+                'success'
+            )
+            flash(
+                f"{gps_imported} enregistrements GPS importes pour {len(players_found)} joueurs. "
+                f"{sessions_created} seances creees, {sessions_reused} reutilisees.",
+                'info'
+            )
+            if players_not_found:
+                unique_not_found = sorted(set(players_not_found))
+                flash(
+                    f"Joueurs non trouves dans la base ({len(unique_not_found)}) : "
+                    f"{', '.join(unique_not_found[:5])}{'...' if len(unique_not_found) > 5 else ''}",
+                    'warning'
+                )
+
         except Exception as e:
-            flash(f'Erreur lors de l\'import : {str(e)}', 'danger')
-        
+            db.session.rollback()
+            flash(f"Erreur lors de l'import : {str(e)}", 'danger')
         finally:
-            # Supprimer le fichier temporaire
             if os.path.exists(upload_path):
                 os.remove(upload_path)
-        
+
         return redirect(url_for('gps.index'))
-    
-    return render_template('coach/gps/upload.html', form=form)
+
+    # GET : afficher le formulaire
+    return render_template('coach/gps/upload.html')
 
 
 @gps_bp.route('/session/<int:session_id>')

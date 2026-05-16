@@ -43,26 +43,33 @@
     <div class="card-body p-0">
         {% if recent_imports %}
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
+            <table class="table table-hover mb-0gps-table">
+                <thead style="background: rgba(40, 167, 69, 0.15);">
                     <tr>
-                        <th>Date</th>
-                        <th>Joueur</th>
-                        <th>Séance</th>
-                        <th>Distance</th>
-                        <th>Player Load</th>
-                        <th>Fournisseur</th>
+                        <th style="color: #28a745; border-color: rgba(40,167,69,0.3);">Date</th>
+                        <th style="color: #28a745; border-color: rgba(40,167,69,0.3);">Joueur</th>
+                        <th style="color: #28a745; border-color: rgba(40,167,69,0.3);">Séance</th>
+                        <th style="color: #28a745; border-color: rgba(40,167,69,0.3);">Distance</th>
+                        <th style="color: #28a745; border-color: rgba(40,167,69,0.3);">Player Load</th>
+                        <th style="color: #28a745; border-color: rgba(40,167,69,0.3);">Fournisseur</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for gps in recent_imports %}
-                    <tr>
-                        <td>{{ gps.recorded_at.strftime('%d/%m/%Y %H:%M') if gps.recorded_at else '-' }}</td>
-                        <td>{{ gps.player.full_name if gps.player else '-' }}</td>
-                        <td>{{ gps.session.title if gps.session else '-' }}</td>
-                        <td>{{ "%.0f"|format(gps.total_distance or 0) }} m</td>
-                        <td>{{ "%.1f"|format(gps.player_load or 0) }}</td>
-                        <td><span class="badge bg-secondary">{{ gps.provider or '-' }}</span></td>
+                    <tr style="color: rgba(255,255,255,0.9); border-color: rgba(255,255,255,0.1);">
+                        <td style="color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.1);">{{ gps.recorded_at.strftime('%d/%m/%Y %H:%M') if gps.recorded_at else '-' }}</td>
+                        <td style="color: rgba(255,255,255,0.95); font-weight: 500; border-color: rgba(255,255,255,0.1);">
+                            {% if gps.player %}
+                                <a href="{{ url_for('players.view_player', id=gps.player.id) }}"
+                                   style="color: #28a745; text-decoration: none;">
+                                    {{ gps.player.full_name }}
+                                </a>
+                            {% else %}-{% endif %}
+                        </td>
+                        <td style="color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.1);">{{ gps.session.title if gps.session else '-' }}</td>
+                        <td style="color: rgba(255,255,255,0.9); font-weight: 500; border-color: rgba(255,255,255,0.1);">{{ "%.0f"|format(gps.total_distance or 0) }} m</td>
+                        <td style="color: rgba(255,255,255,0.9); font-weight: 500; border-color: rgba(255,255,255,0.1);">{{ "%.1f"|format(gps.player_load or 0) }}</td>
+                        <td style="border-color: rgba(255,255,255,0.1);"><span class="badge bg-success">{{ gps.provider or '-' }}</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>
